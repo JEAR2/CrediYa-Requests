@@ -1,15 +1,31 @@
 package co.com.crediya.api.config;
 
+import co.com.crediya.api.dtos.ResponseLoanTypeDTO;
+import co.com.crediya.api.dtos.ResponseRequestDTO;
+import co.com.crediya.api.mapper.RequestDTOMapper;
 import co.com.crediya.api.requests.RequestsHandler;
 import co.com.crediya.api.requests.RouterRest;
+import co.com.crediya.model.loantype.LoanType;
+import co.com.crediya.model.ports.TransactionManagement;
+import co.com.crediya.model.request.Request;
+import co.com.crediya.usecase.loantype.LoanTypeUseCase;
+import co.com.crediya.usecase.loantype.LoanTypeUseCasePort;
+import co.com.crediya.usecase.request.RequestUseCase;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.core.publisher.Mono;
 
-@ContextConfiguration(classes = {RouterRest.class, RequestsHandler.class})
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@ContextConfiguration(classes = {RouterRest.class, RequestsHandler.class,PathsConfig.class})
 @WebFluxTest
 @Import({CorsConfig.class, SecurityHeadersConfig.class})
 class ConfigTest {
@@ -17,10 +33,39 @@ class ConfigTest {
     @Autowired
     private WebTestClient webTestClient;
 
+    @MockitoBean
+    private TransactionalOperator transactionalOperator;
+
+    @MockitoBean
+    private TransactionManagement transactionManagement;
+
+    @MockitoBean
+    private RequestUseCase  requestUseCase;
+    @MockitoBean
+    private LoanTypeUseCase  loanTypeUseCase;
+    @MockitoBean
+    private ResponseLoanTypeDTO responseLoanTypeDTO;
+    @MockitoBean
+    private RequestDTOMapper requestDTOMapper;
+
+    private final Request request = Request.builder()
+            .id("1").amount(1560.0).email("a@a.com").period(5).idState(1L).idLoanType(1L).build();
+
+    private final ResponseRequestDTO responseRequestDTO = new ResponseRequestDTO(1L,152.0,5,"a@a.com",1L,1L);
+
+    private final LoanType loanType = LoanType.builder().id(1L).name("Type1").code("TIPE1").minimumAmount(1500.0).maximumAmount(350000.0).interestRate(15.0).automaticValidation(true).build();
+
+
+    @BeforeEach
+    void setUp() {
+        when(requestUseCase.saveRequest(request)).thenReturn(Mono.just(request));
+        when(loanTypeUseCase.findByCode(loanType.getCode())).thenReturn(Mono.just(loanType));
+        when(requestDTOMapper.toResponseDTO(any())).thenReturn(responseRequestDTO);
+    }
     @Test
     void corsConfigurationShouldAllowOrigins() {
-        webTestClient.get()
-                .uri("/api/usecase/path")
+        webTestClient.post()
+                .uri("/api/v1/requests")
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().valueEquals("Content-Security-Policy",

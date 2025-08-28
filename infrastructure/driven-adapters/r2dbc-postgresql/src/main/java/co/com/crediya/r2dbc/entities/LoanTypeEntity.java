@@ -17,12 +17,14 @@ public class LoanTypeEntity {
     private Long id;
     @Column(name = "name")
     private String name;
-    @Column(name = "minimumAmount")
+    @Column(name = "code")
+    private String code;
+    @Column(name = "minimum_amount")
     private Double minimumAmount;
-    @Column(name = "maximumAmount")
+    @Column(name = "maximum_amount")
     private Double maximumAmount;
-    @Column(name = "interestRate")
+    @Column(name = "interest_rate")
     private Double interestRate;
-    @Column(name = "automaticValidation")
+    @Column(name = "automatic_validation")
     private Boolean automaticValidation;
 }

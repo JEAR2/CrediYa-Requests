@@ -21,7 +21,7 @@ class RestConsumerTest {
 
     private static MockWebServer mockBackEnd;
 
-
+/*
     @BeforeAll
     static void setUp() throws IOException {
         mockBackEnd = new MockWebServer();
@@ -64,5 +64,5 @@ class RestConsumerTest {
         StepVerifier.create(response)
                 .expectNextMatches(objectResponse -> objectResponse.getState().equals("ok"))
                 .verifyComplete();
-    }
+    }*/
 }

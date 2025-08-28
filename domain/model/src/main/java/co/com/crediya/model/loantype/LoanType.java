@@ -13,6 +13,7 @@ import lombok.Setter;
 public class LoanType {
     Long id;
     String name;
+    String code;
     Double minimumAmount;
     Double maximumAmount;
     Double interestRate;

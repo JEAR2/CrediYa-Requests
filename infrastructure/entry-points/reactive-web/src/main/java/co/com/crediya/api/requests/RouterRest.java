@@ -1,5 +1,6 @@
 package co.com.crediya.api.requests;
 
+import co.com.crediya.api.config.PathsConfig;
 import co.com.crediya.api.dtos.CreateRequestDTO;
 import co.com.crediya.api.dtos.ResponseRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,25 +26,12 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 public class RouterRest {
 
     private final RequestsHandler requestRequestsHandler;
+    private final PathsConfig pathsConfig;
     @Bean
     @RouterOperations({
-            @RouterOperation(
-                    path = "/api/v1/requests",
-                    produces = {
-                            MediaType.APPLICATION_JSON_VALUE,
-                    },
-                    method = RequestMethod.POST,
-                    beanClass = RequestsHandler.class,
-                    beanMethod = "listenSaveRequest",
-                    operation = @Operation( tags = "Requests", operationId = "saveRequest", description = "Save a request", summary = "Save a request",
-                            requestBody = @RequestBody( content = @Content( schema = @Schema( implementation = CreateRequestDTO.class ) ) ),
-                            responses = { @ApiResponse( responseCode = "201", description = "request saved successfully.", content = @Content( schema = @Schema( implementation = ResponseRequestDTO.class ) ) ),
-                                    //@ApiResponse( responseCode = "400", description = "Request body is not valid.", content = @Content( schema = @Schema( implementation = CustomError.class ) ) )
-                            }
-                    )
-            )
+            @RouterOperation(path = "/api/v1/requests", produces = {MediaType.APPLICATION_JSON_VALUE,}, method = RequestMethod.POST, beanClass = RequestsHandler.class, beanMethod = "listenSaveRequest")
     })
     public RouterFunction<ServerResponse> routerFunction(RequestsHandler requestsHandler) {
-        return route(POST("/api/v1/requests"), this.requestRequestsHandler::listenSaveRequest);
+        return route(POST(pathsConfig.getRequests()), this.requestRequestsHandler::listenSaveRequest);
     }
 }

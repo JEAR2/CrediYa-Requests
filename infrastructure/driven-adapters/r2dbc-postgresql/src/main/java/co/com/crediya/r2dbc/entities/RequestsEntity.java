@@ -14,7 +14,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public class RequestsEntity {
     @Id
     @Column("request_id")
-    private Long id;
+    private String id;
     private Double amount;
     private Integer period;
     private String email;

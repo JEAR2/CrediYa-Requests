@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 public class RequestRepositoryAdapter extends ReactiveAdapterOperations<
         Request,
         RequestsEntity,
-        Long,
+        String,
         RequestReactiveRepository
 > implements RequestRepository {
     public RequestRepositoryAdapter(RequestReactiveRepository repository, ObjectMapper mapper) {

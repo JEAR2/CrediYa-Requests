@@ -5,5 +5,5 @@ public record CreateRequestDTO (
         Integer period,
         String email,
         Long idState,
-        Long idLoanType){
+        String codeLoanType){
 }

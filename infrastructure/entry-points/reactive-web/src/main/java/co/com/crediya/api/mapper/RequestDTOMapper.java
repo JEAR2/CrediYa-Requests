@@ -4,9 +4,18 @@ import co.com.crediya.api.dtos.CreateRequestDTO;
 import co.com.crediya.api.dtos.ResponseRequestDTO;
 import co.com.crediya.model.request.Request;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",
+        unmappedSourcePolicy = ReportingPolicy.IGNORE,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface RequestDTOMapper {
+
+    @Mapping(
+            source = "idLoanType",
+            target = "idLoanType"
+    )
+    Request createRequestDTOToRequest(CreateRequestDTO  createRequestDTO, Long idLoanType);
     ResponseRequestDTO toResponseDTO(Request request);
-    Request toRequest(CreateRequestDTO  createRequestDTO);
 }

@@ -1,0 +1,3 @@
+routes:
+  paths:
+    requests: "/api/v1/requests"

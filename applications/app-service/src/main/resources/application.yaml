@@ -37,6 +37,10 @@ adapter:
   restconsumer:
     timeout: 5000
     url: "http://localhost:8080/api/v1/users"
+routes:
+  paths:
+    requests: "/api/v1/requests"
+
 resilience4j:
   circuitbreaker:
     instances:
