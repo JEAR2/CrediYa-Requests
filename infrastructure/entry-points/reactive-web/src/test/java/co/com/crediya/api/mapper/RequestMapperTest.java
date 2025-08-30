@@ -9,13 +9,17 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class RequestMapperTest {
 
-    private final CreateRequestDTO  createRequestDTO = new CreateRequestDTO(1500.0,5,"a@a.com",1L,"CODE1");
-
-    private final Request request = Request.builder().id("1").amount(150.0).period(2).email("a@a.com").idState(1L).idLoanType(1L).build();
+    private final CreateRequestDTO  createRequestDTO = new CreateRequestDTO(new BigDecimal("10000"),5,"a@a.com",1L,"CODE1");
+    private final CreateRequestDTO  createRequestDTO2 = new CreateRequestDTO(BigDecimal.TEN,null,"a@a.com",null,null);
+    private final CreateRequestDTO  createRequestDTO3 = new CreateRequestDTO(null,5,null,1L,"CODE1");
+    private final Request request = Request.builder().id("1").amount(new BigDecimal("10000")).period(2).email("a@a.com").idState(1L).idLoanType(1L).build();
 
     private final RequestDTOMapper requestDTOMapper = Mappers.getMapper(RequestDTOMapper.class);
 
@@ -31,6 +35,43 @@ public class RequestMapperTest {
 
                 )
                 .verifyComplete();
+    }
+    @Test
+    void testCreateRequestToModel_WhenDTOIsNull_ShouldReturnEmptyRequest() {
+        Mono<Request> result = Mono.fromCallable(() -> requestDTOMapper.createRequestDTOToRequest(null, 1L));
+
+        StepVerifier.create(result)
+                .expectNextMatches(requestResult ->
+                        requestResult.getEmail() == null &&
+                                requestResult.getAmount() == null &&
+                                requestResult.getIdState() == null
+                )
+                .verifyComplete();
+    }
+
+    @Test
+    void createRequestToModel_WhenIdStateIsNull_ShouldMapWithoutIdState() {
+
+
+        Request result = requestDTOMapper.createRequestDTOToRequest(createRequestDTO2, null);
+
+        assertEquals("a@a.com", result.getEmail());
+        assertEquals(BigDecimal.TEN, result.getAmount());
+        assertNull(result.getIdState());
+    }
+    @Test
+    void createRequestToModel_WhenFieldsAreNull_ShouldReturnRequestWithNulls() {
+
+        Request result = requestDTOMapper.createRequestDTOToRequest(createRequestDTO3, 1L);
+
+        assertNull(result.getEmail());
+        assertNull(result.getAmount());
+        assertEquals(1L, result.getIdState());
+    }
+    @Test
+    void createRequestToModel_WhenDTOIsNull_ShouldReturnEmpty() {
+        Request result = requestDTOMapper.createRequestDTOToRequest(null, 1L);
+        assertNotNull(result);
     }
 
 

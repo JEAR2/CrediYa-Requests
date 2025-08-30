@@ -1,8 +1,6 @@
 package co.com.crediya.usecase.request;
 
 import co.com.crediya.model.exceptions.RequestResourceNotFoundException;
-import co.com.crediya.model.loantype.LoanType;
-import co.com.crediya.model.loantype.gateways.LoanTypeRepository;
 import co.com.crediya.model.request.Request;
 import co.com.crediya.model.request.gateways.RequestRepository;
 import co.com.crediya.model.user.UserGateway;
@@ -12,6 +10,8 @@ import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.math.BigDecimal;
+
 import static org.mockito.Mockito.*;
 
 class RequestUseCaseTest {
@@ -20,7 +20,7 @@ class RequestUseCaseTest {
     private RequestUseCase requestUseCase;
     private UserGateway userGateway;
     private Request createRequest() {
-        return new Request().toBuilder().id("1").amount(500000.0).email("a@a.com").idState(1L).idLoanType(1L).period(4).build();
+        return new Request().toBuilder().id("1").amount(new BigDecimal("1000")).email("a@a.com").idState(1L).idLoanType(1L).period(4).build();
     }
 
 

@@ -2,7 +2,6 @@ package co.com.crediya.usecase.request;
 
 import co.com.crediya.model.exceptions.RequestResourceNotFoundException;
 import co.com.crediya.model.exceptions.enums.ExceptionMessages;
-import co.com.crediya.model.loantype.gateways.LoanTypeRepository;
 import co.com.crediya.model.request.Request;
 import co.com.crediya.model.request.gateways.RequestRepository;
 import co.com.crediya.model.user.UserGateway;

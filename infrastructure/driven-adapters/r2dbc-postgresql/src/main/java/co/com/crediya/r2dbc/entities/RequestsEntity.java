@@ -5,6 +5,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.math.BigDecimal;
+
 @Table("requests")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,7 +17,7 @@ public class RequestsEntity {
     @Id
     @Column("request_id")
     private String id;
-    private Double amount;
+    private BigDecimal amount;
     private Integer period;
     private String email;
     private Long idState;

@@ -1,6 +1,7 @@
 package co.com.crediya.consumer;
 
 
+import co.com.crediya.model.user.User;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
@@ -16,12 +17,18 @@ import java.io.IOException;
 
 
 class RestConsumerTest {
-
     private static RestConsumer restConsumer;
 
     private static MockWebServer mockBackEnd;
 
-/*
+
+    private final User user = User.builder()
+            .name("john")
+            .lastName("acevedo")
+            .identityDocument("123")
+            .email("arevalo@gmail.com")
+            .build();
+
     @BeforeAll
     static void setUp() throws IOException {
         mockBackEnd = new MockWebServer();
@@ -37,32 +44,33 @@ class RestConsumerTest {
     }
 
     @Test
-    @DisplayName("Validate the function testGet.")
-    void validateTestGet() {
-
+    @DisplayName("Validate the function findByEmail returns true when backend says email exists.")
+    void validateFindByEmail_WhenExists_ShouldReturnTrue() {
         mockBackEnd.enqueue(new MockResponse()
-                .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .setResponseCode(HttpStatus.OK.value())
-                .setBody("{\"state\" : \"ok\"}"));
-        var response = restConsumer.testGet();
+                .setBody("true"));
+
+        var response = restConsumer.findByEmail("acevedo@gmail.com");
 
         StepVerifier.create(response)
-                .expectNextMatches(objectResponse -> objectResponse.getState().equals("ok"))
+                .expectNext(true)
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("Validate the function testPost.")
-    void validateTestPost() {
-
+    @DisplayName("Validate the function findByEmail returns false when backend says email does not exist.")
+    void validateFindByEmail_WhenNotExists_ShouldReturnFalse() {
         mockBackEnd.enqueue(new MockResponse()
-                .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .setResponseCode(HttpStatus.OK.value())
-                .setBody("{\"state\" : \"ok\"}"));
-        var response = restConsumer.testPost();
+                .setBody("false"));
+
+        var response = restConsumer.findByEmail("notfound@gmail.com");
 
         StepVerifier.create(response)
-                .expectNextMatches(objectResponse -> objectResponse.getState().equals("ok"))
+                .expectNext(false)
                 .verifyComplete();
-    }*/
+    }
+
 }

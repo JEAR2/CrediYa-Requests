@@ -1,6 +1,8 @@
 package co.com.crediya.model.request;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -8,7 +10,7 @@ import lombok.*;
 @Builder(toBuilder = true)
 public class Request {
     String id;
-    Double amount;
+    BigDecimal amount;
     Integer period;
     String email;
     Long idState;

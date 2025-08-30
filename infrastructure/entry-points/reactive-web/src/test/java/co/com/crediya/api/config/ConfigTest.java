@@ -5,6 +5,7 @@ import co.com.crediya.api.dtos.ResponseRequestDTO;
 import co.com.crediya.api.mapper.RequestDTOMapper;
 import co.com.crediya.api.requests.RequestsHandler;
 import co.com.crediya.api.requests.RouterRest;
+import co.com.crediya.api.util.ValidatorUtil;
 import co.com.crediya.model.loantype.LoanType;
 import co.com.crediya.model.ports.TransactionManagement;
 import co.com.crediya.model.request.Request;
@@ -22,10 +23,12 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@ContextConfiguration(classes = {RouterRest.class, RequestsHandler.class,PathsConfig.class})
+@ContextConfiguration(classes = {RouterRest.class, RequestsHandler.class,PathsConfig.class, ValidatorUtil.class})
 @WebFluxTest
 @Import({CorsConfig.class, SecurityHeadersConfig.class})
 class ConfigTest {
@@ -49,9 +52,9 @@ class ConfigTest {
     private RequestDTOMapper requestDTOMapper;
 
     private final Request request = Request.builder()
-            .id("1").amount(1560.0).email("a@a.com").period(5).idState(1L).idLoanType(1L).build();
+            .id("1").amount(new BigDecimal("10000")).email("a@a.com").period(5).idState(1L).idLoanType(1L).build();
 
-    private final ResponseRequestDTO responseRequestDTO = new ResponseRequestDTO(1L,152.0,5,"a@a.com",1L,1L);
+    private final ResponseRequestDTO responseRequestDTO = new ResponseRequestDTO(1L,new BigDecimal("10000"),5,"a@a.com",1L,1L);
 
     private final LoanType loanType = LoanType.builder().id(1L).name("Type1").code("TIPE1").minimumAmount(1500.0).maximumAmount(350000.0).interestRate(15.0).automaticValidation(true).build();
 

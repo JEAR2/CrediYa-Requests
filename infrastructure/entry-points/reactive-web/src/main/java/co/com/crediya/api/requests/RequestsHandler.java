@@ -3,8 +3,12 @@ package co.com.crediya.api.requests;
 import co.com.crediya.api.dtos.CreateRequestDTO;
 import co.com.crediya.api.dtos.ResponseRequestDTO;
 import co.com.crediya.api.exceptions.model.CustomError;
+import co.com.crediya.api.exceptions.model.ResponseDTO;
 import co.com.crediya.api.mapper.RequestDTOMapper;
+import co.com.crediya.api.util.HandlersResponseUtil;
 import co.com.crediya.api.util.HandlersUtil;
+import co.com.crediya.api.util.ValidatorUtil;
+import co.com.crediya.model.exceptions.enums.ExceptionStatusCode;
 import co.com.crediya.model.loantype.LoanType;
 import co.com.crediya.model.loantype.gateways.LoanTypeRepository;
 import co.com.crediya.model.ports.TransactionManagement;
@@ -20,7 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
@@ -35,25 +38,26 @@ public class RequestsHandler {
     private final LoanTypeUseCasePort  loanTypeUseCasePort;
     private final RequestDTOMapper requestDTOMapper;
     private final TransactionManagement transactionManagement;
+    private final ValidatorUtil validatorUtil;
 
-    @Operation( tags = "Requests", operationId = "saveRequest", description = "Save a request ", summary = "Save a request ",
+    @Operation( tags = "Requests", operationId = "saveRequest", description = "Save a request", summary = "Save a request",
             requestBody = @RequestBody( content = @Content( schema = @Schema( implementation = CreateRequestDTO.class ) ) ),
-            responses = { @ApiResponse( responseCode = "201", description = "request saved successfully.", content = @Content( schema = @Schema( implementation = ResponseRequestDTO.class ) ) ),
-                    @ApiResponse( responseCode = "400", description = "Body is not valid.", content = @Content( schema = @Schema( implementation = CustomError.class ) ) ),
-                    @ApiResponse( responseCode = "404", description = "User email sent is not found.", content = @Content( schema = @Schema( implementation = CustomError.class ) ) )
+            responses = { @ApiResponse( responseCode = "201", description = "Request saved successfully.", content = @Content( schema = @Schema( implementation = ResponseRequestDTO.class ) ) ),
+                    @ApiResponse( responseCode = "400", description = "Request body is not valid.", content = @Content( schema = @Schema( implementation = ResponseDTO.class ) ) ),
+                    @ApiResponse( responseCode = "404", description = "User email sent is not found.", content = @Content( schema = @Schema( implementation = ResponseDTO.class ) ) )
             }
     )
     public Mono<ServerResponse> listenSaveRequest(ServerRequest serverRequest) {
         return serverRequest.bodyToMono(CreateRequestDTO.class)
+                .flatMap( validatorUtil::validate )
                 .flatMap(dto -> loanTypeUseCasePort.findByCode(dto.codeLoanType())
                         .map(loanType -> requestDTOMapper.createRequestDTOToRequest(dto, loanType.getId()))
                         .flatMap(request -> transactionManagement.inTransaction(requestUseCase.saveRequest(request)))
                         .map(requestDTOMapper::toResponseDTO)
-                        .flatMap(savedLoan ->
-                                ServerResponse.created(URI.create(""))
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .bodyValue(HandlersUtil.buildBodyResponse(true, HttpStatus.CREATED.value(), "data", savedLoan))
-                        )
+                        .flatMap( savedRequest ->
+                        ServerResponse.created(URI.create(""))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue( HandlersResponseUtil.buildBodySuccessResponse(ExceptionStatusCode.CREATED.status(), savedRequest) ))
                 );
     }
 

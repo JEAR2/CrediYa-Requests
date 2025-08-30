@@ -15,6 +15,8 @@ import org.springframework.http.RequestEntity;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.math.BigDecimal;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -37,7 +39,7 @@ class RequestRepositoryAdapterTest {
     void setUp() {
          request = Request.builder()
                 .id("1")
-                .amount(259000.0)
+                .amount(new BigDecimal("10000"))
                 .period(6)
                 .email("a@a.com")
                 .idState(1L)
@@ -46,7 +48,7 @@ class RequestRepositoryAdapterTest {
 
         requestEntity = RequestsEntity.builder()
                 .id("1")
-                .amount(259000.0)
+                .amount(new BigDecimal("10000"))
                 .period(6)
                 .email("a@a.com")
                 .idState(1L)
