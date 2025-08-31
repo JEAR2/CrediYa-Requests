@@ -4,5 +4,5 @@ import co.com.crediya.model.request.Request;
 import reactor.core.publisher.Mono;
 
 public interface IRequestUseCase {
-    Mono<Request> saveRequest(Request request);
+    Mono<Request> saveRequest(Request request, String userEmailFromToken, String token);
 }

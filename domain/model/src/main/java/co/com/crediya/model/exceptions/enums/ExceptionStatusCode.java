@@ -2,6 +2,7 @@ package co.com.crediya.model.exceptions.enums;
 
 public enum ExceptionStatusCode {
     BAD_REQUEST("400-BD"),
+    BAD_REQUEST_VALIDATE("400-VD"),
     FIELDS_BAD_REQUEST("400-BD-FIELDS"),
     NOT_FOUND("404-NF"),
     CREATED("201-CR"),

@@ -59,10 +59,10 @@ public class GlobalHandlerException implements ErrorWebExceptionHandler {
                     response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
                     return response;
                 }).flatMap(response -> {
-                    if (ex instanceof RequestException authenticationException) {
-                        log.warn("Authentication Exception: {}", authenticationException.getMessage());
-                        return buildFailureResponse(exchange, HttpStatus.resolve(authenticationException.getStatus()), HandlersResponseUtil.buildBodyFailureResponse(
-                                authenticationException.getStatusCode().status(), authenticationException.getMessage(), null
+                    if (ex instanceof RequestException requestException) {
+                        log.warn("Authentication Exception: {}", requestException.getMessage());
+                        return buildFailureResponse(exchange, HttpStatus.resolve(requestException.getStatus()), HandlersResponseUtil.buildBodyFailureResponse(
+                                requestException.getStatusCode().status(), requestException.getMessage(), null
                         ));
                     }
                     if (ex instanceof ConstraintViolationException fieldValidationException) {

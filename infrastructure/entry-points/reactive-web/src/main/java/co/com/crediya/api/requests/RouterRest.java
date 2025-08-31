@@ -1,13 +1,6 @@
 package co.com.crediya.api.requests;
 
 import co.com.crediya.api.config.PathsConfig;
-import co.com.crediya.api.dtos.CreateRequestDTO;
-import co.com.crediya.api.dtos.ResponseRequestDTO;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.RouterOperation;
 import org.springdoc.core.annotations.RouterOperations;

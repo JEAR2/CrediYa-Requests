@@ -4,5 +4,5 @@ import reactor.core.publisher.Mono;
 
 public interface UserGateway {
     Mono<Boolean> existsById(String clientId);
-    Mono<Boolean> findByEmail(String email);
+    Mono<Boolean> findByEmail(String email, String token);
 }
