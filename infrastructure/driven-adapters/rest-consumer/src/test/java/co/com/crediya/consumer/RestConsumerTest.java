@@ -51,7 +51,7 @@ class RestConsumerTest {
                 .setResponseCode(HttpStatus.OK.value())
                 .setBody("true"));
 
-        var response = restConsumer.findByEmail("acevedo@gmail.com");
+        var response = restConsumer.findByEmail("acevedo@gmail.com","tokenfalso");
 
         StepVerifier.create(response)
                 .expectNext(true)
@@ -66,7 +66,7 @@ class RestConsumerTest {
                 .setResponseCode(HttpStatus.OK.value())
                 .setBody("false"));
 
-        var response = restConsumer.findByEmail("notfound@gmail.com");
+        var response = restConsumer.findByEmail("notfound@gmail.com","tokenfalso");
 
         StepVerifier.create(response)
                 .expectNext(false)

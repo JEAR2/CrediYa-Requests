@@ -37,30 +37,30 @@ class RequestUseCaseTest {
         Request request = createRequest();
 
 
-        Mockito.when(userGateway.findByEmail(request.getEmail())).thenReturn(Mono.just(true));
+        Mockito.when(userGateway.findByEmail(request.getEmail(),"tokenfalso")).thenReturn(Mono.just(true));
         Mockito.when(requestRepository.save(any(Request.class))).thenReturn(Mono.just(request));
 
 
 
-        StepVerifier.create(requestUseCase.saveRequest(request))
+        StepVerifier.create(requestUseCase.saveRequest(request,"a@a.com","tokenfalso"))
                 .expectNext(request)
                 .verifyComplete();
 
-        verify(userGateway, times(1)).findByEmail(request.getEmail());
+        verify(userGateway, times(1)).findByEmail(request.getEmail(),"tokenfalso");
         verify(requestRepository, times(1)).save(request);
     }
     @Test
     void saveRequest_WhenUserDoesNotExist_ShouldError() {
 
         Request request = createRequest();
-        Mockito.when(userGateway.findByEmail(request.getEmail())).thenReturn(Mono.just(false));
+        Mockito.when(userGateway.findByEmail(request.getEmail(),"tokenfalso")).thenReturn(Mono.just(false));
 
 
-        StepVerifier.create(requestUseCase.saveRequest(request))
+        StepVerifier.create(requestUseCase.saveRequest(request,"a@.com","tokenfalso"))
                 .expectError(RequestResourceNotFoundException.class)
                 .verify();
 
-        verify(userGateway, times(1)).findByEmail(request.getEmail());
+        verify(userGateway, times(1)).findByEmail(request.getEmail(),"tokenfalso");
     }
 
 

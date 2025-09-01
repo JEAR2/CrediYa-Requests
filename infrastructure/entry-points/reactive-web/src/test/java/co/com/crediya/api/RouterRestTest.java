@@ -1,6 +1,7 @@
 package co.com.crediya.api;
 
 import co.com.crediya.api.config.PathsConfig;
+import co.com.crediya.api.config.TestSecurityConfig;
 import co.com.crediya.api.dtos.CreateRequestDTO;
 import co.com.crediya.api.dtos.ResponseRequestDTO;
 import co.com.crediya.api.mapper.RequestDTOMapper;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -29,9 +31,11 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockJwt;
 
 @ContextConfiguration(classes = {RouterRest.class, RequestsHandler.class, ValidatorUtil.class})
 @EnableConfigurationProperties(PathsConfig.class)
+@Import(TestSecurityConfig.class)
 @WebFluxTest
 class RouterRestTest {
 
@@ -69,7 +73,7 @@ class RouterRestTest {
     @Test
     void testListenPOSTUseCase() {
 
-        when( requestUseCase.saveRequest(request) ).thenReturn(Mono.just(request));
+        when( requestUseCase.saveRequest(request,"a@a.com","tokenfalso") ).thenReturn(Mono.just(request));
         when(loanTypeUseCasePort.findByCode(loanType.getCode())).thenReturn(Mono.just(loanType));
 
         when( requestDTOMapper.toResponseDTO( any(Request.class) ) ).thenReturn( responseRequestDTO );
@@ -80,17 +84,25 @@ class RouterRestTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
 
-        webTestClient.post()
-                .uri(REQUESTS_PATH)
+        webTestClient
+                .mutateWith(
+                        mockJwt()
+                                .jwt(jwt -> jwt.subject("a@a.com")) // principal que el handler lee
+                                .authorities(() -> "ROLE_CLIENTE")  // cumple con hasRole("CLIENTE")
+                )
+                .post()
+                .uri(REQUESTS_PATH) // "/api/v1/requests"
+                .header("Authorization", "Bearer tokenfalso")
+                .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(createRequestDTO)
                 .exchange()
                 .expectStatus().isCreated()
+                .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
                 .expectBody()
                 .jsonPath("$.code").isEqualTo(ExceptionStatusCode.CREATED.status())
-                .jsonPath("$.data.email")
-                .value( email -> {
-                    Assertions.assertThat(email).isEqualTo(request.getEmail());
-                } );
+                .jsonPath("$.message").isEqualTo("Operation successful!")
+                .jsonPath("$.data.email").isEqualTo("a@a.com"); // ajusta si tu mapper rellena otro valor
     }
+
 }
