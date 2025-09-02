@@ -1,6 +1,6 @@
-package co.com.crediya.r2dbc.config.security;
+package co.com.crediya.security.config;
 
-import co.com.crediya.r2dbc.helper.security.JwtRoleConverter;
+import co.com.crediya.security.helper.JwtRoleConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,7 +38,7 @@ public class SecurityConfigRequests {
                         oauth2.jwt(jwtSpec ->
                                 jwtSpec
                                         .jwtAuthenticationConverter(grantedAuthoritiesExtractor())
-                                        .jwtDecoder(jwtDecoder) // Usamos el bean inyectado
+                                        .jwtDecoder(jwtDecoder)
                         )
                 )
                 .build();

@@ -1,4 +1,4 @@
-package co.com.crediya.r2dbc.helper.security;
+package co.com.crediya.security.helper;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;

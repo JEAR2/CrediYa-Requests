@@ -1,4 +1,4 @@
-package co.com.crediya.r2dbc.config.security;
+package co.com.crediya.security.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
