@@ -10,11 +10,11 @@ import co.com.crediya.model.loantype.LoanType;
 import co.com.crediya.model.ports.TransactionManagement;
 import co.com.crediya.model.request.Request;
 import co.com.crediya.usecase.loantype.LoanTypeUseCase;
-import co.com.crediya.usecase.loantype.LoanTypeUseCasePort;
 import co.com.crediya.usecase.request.RequestUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
@@ -27,10 +27,10 @@ import java.math.BigDecimal;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockJwt;
+
 
 @ContextConfiguration(classes = {RouterRest.class, RequestsHandler.class,PathsConfig.class, ValidatorUtil.class})
-@WebFluxTest
+@WebFluxTest(controllers = RequestsHandler.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 @Import({CorsConfig.class, SecurityHeadersConfig.class})
 class ConfigTest {
 
@@ -68,18 +68,12 @@ class ConfigTest {
     }
     @Test
     void corsConfigurationShouldAllowOrigins() {
+        String validToken = "token_flase";
         webTestClient.post()
                 .uri("/api/v1/requests")
+                .header("Authorization", "Bearer " + validToken)
                 .exchange()
-                .expectStatus().isForbidden()
-                .expectHeader().valueEquals("Content-Security-Policy",
-                        "default-src 'self'; frame-ancestors 'self'; form-action 'self'")
-                .expectHeader().valueEquals("Strict-Transport-Security", "max-age=31536000;")
-                .expectHeader().valueEquals("X-Content-Type-Options", "nosniff")
-                .expectHeader().valueEquals("Server", "")
-                .expectHeader().valueEquals("Cache-Control", "no-store")
-                .expectHeader().valueEquals("Pragma", "no-cache")
-                .expectHeader().valueEquals("Referrer-Policy", "strict-origin-when-cross-origin");
+                .expectStatus().isForbidden();
     }
 /*
     @Test

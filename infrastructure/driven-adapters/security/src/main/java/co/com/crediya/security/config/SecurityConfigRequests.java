@@ -1,5 +1,7 @@
 package co.com.crediya.security.config;
 
+import co.com.crediya.security.exception.handler.AccessDeniedExceptionHandler;
+import co.com.crediya.security.exception.handler.UnauthorizedExceptionHandler;
 import co.com.crediya.security.helper.JwtRoleConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -25,13 +27,15 @@ public class SecurityConfigRequests {
 
     private final JwtRoleConverter jwtRoleConverter;
     private final ReactiveJwtDecoder jwtDecoder;
+    private final UnauthorizedExceptionHandler unauthorizedExceptionHandler;
+    private final AccessDeniedExceptionHandler accessDeniedExceptionHandler;
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(ex -> ex
-                        .pathMatchers(HttpMethod.POST, "/api/v1/requests").hasRole("CLIENTE")
+                        .pathMatchers(HttpMethod.POST, "/api/v1/requests").hasRole("CLIENT")
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 ->
@@ -39,7 +43,8 @@ public class SecurityConfigRequests {
                                 jwtSpec
                                         .jwtAuthenticationConverter(grantedAuthoritiesExtractor())
                                         .jwtDecoder(jwtDecoder)
-                        )
+                        ).authenticationEntryPoint(unauthorizedExceptionHandler)
+                                .accessDeniedHandler(accessDeniedExceptionHandler)
                 )
                 .build();
     }

@@ -14,7 +14,6 @@ import co.com.crediya.model.ports.TransactionManagement;
 import co.com.crediya.model.request.Request;
 import co.com.crediya.usecase.loantype.LoanTypeUseCasePort;
 import co.com.crediya.usecase.request.RequestUseCase;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

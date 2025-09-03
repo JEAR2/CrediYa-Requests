@@ -65,5 +65,6 @@ resilience4j:
 
 security:
   jwt:
-    secret: ${JWT_SECRET:3Y8vRj2fA9kQm7XsZ5bW1tGeLhKdN0qCp4yUoFnJxVrTiHaM6zEcSbDgPwXrQvTy}
     expiration: 3600000
+    public-key-location: classpath:public_key.pem
+    private-key-location: classpath:private_key.pem

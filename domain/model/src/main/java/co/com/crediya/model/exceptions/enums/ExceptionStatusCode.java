@@ -7,8 +7,9 @@ public enum ExceptionStatusCode {
     NOT_FOUND("404-NF"),
     CREATED("201-CR"),
     INTERNAL_SERVER_ERROR("500-ISE"),
-    OK("200-OK");
-
+    OK("200-OK"),
+    FORBIDDEN("403"),
+    UNAUTHORIZED("401");
     private final String statusCode;
 
     ExceptionStatusCode(String statusCode) {
