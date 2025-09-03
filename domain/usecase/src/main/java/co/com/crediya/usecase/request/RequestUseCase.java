@@ -27,8 +27,7 @@ public class RequestUseCase implements IRequestUseCase {
 
     @Override
     public Mono<Request> saveRequest(Request request, String userEmailFromToken, String token) {
-        return validateUser(request.getEmail(), token)
-                .filter(exists -> userEmailFromToken.equalsIgnoreCase(request.getEmail()))
+        return validateUser(userEmailFromToken, token)
                 .switchIfEmpty(Mono.error(new RequestBadRequestException(
                         ExceptionMessages.USER_DOES_NOT_MATCH.getMessage())))
                 .flatMap(exists -> {

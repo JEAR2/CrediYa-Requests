@@ -71,10 +71,14 @@ public class RequestsHandler {
                                                                 requestUseCase.saveRequest(request, userEmailFromToken, token)
                                                         )
                                                 )
+                                                .map(request -> {
+                                                    request.setEmail(userEmailFromToken);
+                                                    return request;
+                                                })
                                                 .map(requestDTOMapper::toResponseDTO)
                                 )
                                 .flatMap(savedRequest ->
-                                        ServerResponse.created(URI.create("/requests/" + savedRequest.id()))
+                                        ServerResponse.created(URI.create("/requests/" + userEmailFromToken))
                                                 .contentType(MediaType.APPLICATION_JSON)
                                                 .bodyValue(HandlersResponseUtil.buildBodySuccessResponse(
                                                         ExceptionStatusCode.CREATED.status(),

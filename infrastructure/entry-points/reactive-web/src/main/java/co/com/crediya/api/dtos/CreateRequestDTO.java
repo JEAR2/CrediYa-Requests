@@ -10,8 +10,6 @@ public record CreateRequestDTO (
         @NotNull(message = "is required!")
         Integer period,
         @NotNull(message = "is required!")
-        String email,
-        @NotNull(message = "is required!")
         Long idState,
         @NotNull(message = "is required!")
         String codeLoanType){

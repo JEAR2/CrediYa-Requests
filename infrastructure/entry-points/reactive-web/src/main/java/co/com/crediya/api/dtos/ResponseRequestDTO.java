@@ -2,8 +2,7 @@ package co.com.crediya.api.dtos;
 
 import java.math.BigDecimal;
 
-public record ResponseRequestDTO(Long id,
-                                 BigDecimal amount,
+public record ResponseRequestDTO(BigDecimal amount,
                                  Integer period,
                                  String email,
                                  Long idState,
