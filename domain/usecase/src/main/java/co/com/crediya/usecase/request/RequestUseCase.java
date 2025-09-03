@@ -3,11 +3,15 @@ package co.com.crediya.usecase.request;
 import co.com.crediya.model.exceptions.RequestBadRequestException;
 import co.com.crediya.model.exceptions.RequestResourceNotFoundException;
 import co.com.crediya.model.exceptions.enums.ExceptionMessages;
+import co.com.crediya.model.request.PageRequestModel;
 import co.com.crediya.model.request.Request;
 import co.com.crediya.model.request.gateways.RequestRepository;
 import co.com.crediya.model.user.UserGateway;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 
 @RequiredArgsConstructor
@@ -36,6 +40,10 @@ public class RequestUseCase implements IRequestUseCase {
                 });
     }
 
+    @Override
+    public Flux<Request> findRequestByState(List<Long> estados, int page, int size) {
 
+        return requestRepository.findRequestsByState(estados,page,size);
+    }
 
 }

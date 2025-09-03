@@ -40,6 +40,7 @@ adapter:
 routes:
   paths:
     requests: "/api/v1/requests"
+    requestsList: "/api/v1/requests/list"
 
 resilience4j:
   circuitbreaker:

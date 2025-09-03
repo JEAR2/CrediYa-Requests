@@ -5,7 +5,12 @@ import co.com.crediya.model.request.gateways.RequestRepository;
 import co.com.crediya.r2dbc.entities.RequestsEntity;
 import co.com.crediya.r2dbc.helper.ReactiveAdapterOperations;
 import org.reactivecommons.utils.ObjectMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
+
+import java.util.List;
 
 @Repository
 public class RequestRepositoryAdapter extends ReactiveAdapterOperations<
@@ -25,4 +30,12 @@ public class RequestRepositoryAdapter extends ReactiveAdapterOperations<
 
 
 
+
+
+    @Override
+    public Flux<Request> findRequestsByState(List<Long> estados, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return repository.findByIdStateIn(estados, pageable)
+                .map(super::toEntity);
+    }
 }

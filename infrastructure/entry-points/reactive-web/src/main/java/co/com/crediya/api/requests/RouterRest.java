@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
@@ -19,12 +20,16 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 public class RouterRest {
 
     private final RequestsHandler requestRequestsHandler;
+    private final ListRequestHandler listRequestHandler;
     private final PathsConfig pathsConfig;
     @Bean
     @RouterOperations({
             @RouterOperation(path = "/api/v1/requests", produces = {MediaType.APPLICATION_JSON_VALUE,}, method = RequestMethod.POST, beanClass = RequestsHandler.class, beanMethod = "listenSaveRequest")
     })
     public RouterFunction<ServerResponse> routerFunction(RequestsHandler requestsHandler) {
-        return route(POST(pathsConfig.getRequests()), this.requestRequestsHandler::listenSaveRequest);
+        return route(POST(pathsConfig.getRequests()), this.requestRequestsHandler::listenSaveRequest)
+                .andRoute(GET("/api/v1/requests/list"), this.listRequestHandler::listarPorEstados);
     }
+
+
 }

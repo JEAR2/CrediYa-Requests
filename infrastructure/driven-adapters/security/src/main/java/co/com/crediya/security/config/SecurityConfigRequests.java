@@ -36,6 +36,7 @@ public class SecurityConfigRequests {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(ex -> ex
                         .pathMatchers(HttpMethod.POST, "/api/v1/requests").hasRole("CLIENT")
+                        .pathMatchers(HttpMethod.POST, "/api/v1/requests/list").hasRole("ADVISER")
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 ->

@@ -2,6 +2,7 @@ package co.com.crediya.api.mapper;
 
 import co.com.crediya.api.dtos.CreateRequestDTO;
 import co.com.crediya.api.dtos.ResponseRequestDTO;
+import co.com.crediya.api.dtos.ResponseRequestPaginationDTO;
 import co.com.crediya.model.request.Request;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -18,4 +19,5 @@ public interface RequestDTOMapper {
     )
     Request createRequestDTOToRequest(CreateRequestDTO  createRequestDTO, Long idLoanType);
     ResponseRequestDTO toResponseDTO(Request request);
+
 }
