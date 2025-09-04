@@ -1,8 +1,8 @@
 package co.com.crediya.api.config;
 
-import co.com.crediya.api.dtos.ResponseLoanTypeDTO;
 import co.com.crediya.api.dtos.ResponseRequestDTO;
 import co.com.crediya.api.mapper.RequestDTOMapper;
+import co.com.crediya.api.requests.ListRequestHandler;
 import co.com.crediya.api.requests.RequestsHandler;
 import co.com.crediya.api.requests.RouterRest;
 import co.com.crediya.api.util.ValidatorUtil;
@@ -41,14 +41,15 @@ class ConfigTest {
     private TransactionalOperator transactionalOperator;
 
     @MockitoBean
+    private ListRequestHandler listRequestHandler;
+
+    @MockitoBean
     private TransactionManagement transactionManagement;
 
     @MockitoBean
     private RequestUseCase  requestUseCase;
     @MockitoBean
     private LoanTypeUseCase  loanTypeUseCase;
-    @MockitoBean
-    private ResponseLoanTypeDTO responseLoanTypeDTO;
     @MockitoBean
     private RequestDTOMapper requestDTOMapper;
 
@@ -57,12 +58,12 @@ class ConfigTest {
 
     private final ResponseRequestDTO responseRequestDTO = new ResponseRequestDTO(new BigDecimal("10000"),5,"a@a.com",1L,1L,"","",new BigDecimal("10000"),"", BigDecimal.valueOf(10.0));
 
-    private final LoanType loanType = LoanType.builder().id(1L).name("Type1").code("TYPE1").minimumAmount(1500.0).maximumAmount(350000.0).interestRate(15.0).automaticValidation(true).build();
+    private final LoanType loanType = LoanType.builder().id(1L).name("Type1").code("TYPE1").minimumAmount(1500.0).maximumAmount(350000.0).interestRate(BigDecimal.valueOf(10.0)).automaticValidation(true).build();
 
 
     @BeforeEach
     void setUp() {
-        when(requestUseCase.saveRequest(request,"a@a.com","tokenflaso")).thenReturn(Mono.just(request));
+        when(requestUseCase.saveRequest(request,"a@a.com")).thenReturn(Mono.just(request));
         when(loanTypeUseCase.findByCode(loanType.getCode())).thenReturn(Mono.just(loanType));
         when(requestDTOMapper.toResponseDTO(any())).thenReturn(responseRequestDTO);
     }

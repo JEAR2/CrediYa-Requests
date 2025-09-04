@@ -5,6 +5,7 @@ import co.com.crediya.api.config.TestSecurityConfig;
 import co.com.crediya.api.dtos.CreateRequestDTO;
 import co.com.crediya.api.dtos.ResponseRequestDTO;
 import co.com.crediya.api.mapper.RequestDTOMapper;
+import co.com.crediya.api.requests.ListRequestHandler;
 import co.com.crediya.api.requests.RequestsHandler;
 import co.com.crediya.api.requests.RouterRest;
 import co.com.crediya.api.util.ValidatorUtil;
@@ -44,6 +45,9 @@ class RouterRestTest {
     private WebTestClient webTestClient;
 
     @MockitoBean
+    private ListRequestHandler listRequestHandler;
+
+    @MockitoBean
     private RequestUseCase requestUseCase;
 
     @MockitoBean
@@ -62,7 +66,7 @@ class RouterRestTest {
     private final CreateRequestDTO  createRequestDTO = new CreateRequestDTO(new BigDecimal("10000"),5,1L,"CODE1");
     private final ResponseRequestDTO responseRequestDTO = new ResponseRequestDTO(new BigDecimal("10000"),5,"a@a.com",1L,1L,"","",BigDecimal.valueOf(10.0),"",BigDecimal.valueOf(10.0));
     private final Request request = Request.builder().id("1").amount(new BigDecimal("10000")).period(2).email("a@a.com").idState(1L).idLoanType(1L).build();
-    private final LoanType loanType = LoanType.builder().id(1L).name("Tipo 1").code("CODE1").interestRate(15.0).minimumAmount(152000.0).maximumAmount(162000000.0).automaticValidation(true).build();
+    private final LoanType loanType = LoanType.builder().id(1L).name("Tipo 1").code("CODE1").interestRate(BigDecimal.valueOf(15.0)).minimumAmount(152000.0).maximumAmount(162000000.0).automaticValidation(true).build();
     @Test
     void shouldLoadRequestPathProperties() {
         assertEquals(REQUESTS_PATH, pathsConfig.getRequests());
@@ -72,7 +76,7 @@ class RouterRestTest {
     @Test
     void testListenPOSTUseCase() {
 
-        when( requestUseCase.saveRequest(request,"a@a.com","tokenfalso") ).thenReturn(Mono.just(request));
+        when( requestUseCase.saveRequest(request,"a@a.com") ).thenReturn(Mono.just(request));
         when(loanTypeUseCasePort.findByCode(loanType.getCode())).thenReturn(Mono.just(loanType));
 
         when( requestDTOMapper.toResponseDTO( any(Request.class) ) ).thenReturn( responseRequestDTO );
@@ -86,8 +90,8 @@ class RouterRestTest {
         webTestClient
                 .mutateWith(
                         mockJwt()
-                                .jwt(jwt -> jwt.subject("a@a.com")) // principal que el handler lee
-                                .authorities(() -> "ROLE_CLIENTE")  // cumple con hasRole("CLIENTE")
+                                .jwt(jwt -> jwt.subject("a@a.com"))
+                                .authorities(() -> "ROLE_CLIENT")
                 )
                 .post()
                 .uri(REQUESTS_PATH) // "/api/v1/requests"
@@ -101,7 +105,7 @@ class RouterRestTest {
                 .expectBody()
                 .jsonPath("$.code").isEqualTo(ExceptionStatusCode.CREATED.status())
                 .jsonPath("$.message").isEqualTo("Operation successful!")
-                .jsonPath("$.data.email").isEqualTo("a@a.com"); // ajusta si tu mapper rellena otro valor
+                .jsonPath("$.data.email").isEqualTo("a@a.com");
     }
 
 }

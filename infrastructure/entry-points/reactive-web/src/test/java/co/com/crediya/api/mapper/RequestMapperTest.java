@@ -17,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 public class RequestMapperTest {
 
     private final CreateRequestDTO  createRequestDTO = new CreateRequestDTO(new BigDecimal("10000"),5,1L,"CODE1");
-    private final CreateRequestDTO  createRequestDTO2 = new CreateRequestDTO(BigDecimal.TEN,null,null,null);
-    private final CreateRequestDTO  createRequestDTO3 = new CreateRequestDTO(new BigDecimal("10000"),5,1L,"CODE1");
+    private final CreateRequestDTO  createRequestDTO2 = new CreateRequestDTO(BigDecimal.TEN,2,null,null);
+    private final CreateRequestDTO  createRequestDTO3 = new CreateRequestDTO(null,null,1L,"CODE1");
     private final Request request = Request.builder().id("1").amount(new BigDecimal("10000")).period(2).email("a@a.com").idState(1L).idLoanType(1L).build();
 
     private final RequestDTOMapper requestDTOMapper = Mappers.getMapper(RequestDTOMapper.class);
@@ -29,7 +29,7 @@ public class RequestMapperTest {
 
         StepVerifier.create(result)
                 .expectNextMatches( requestResult ->
-                        requestResult.getEmail().equals("a@a.com")
+                        requestResult.getPeriod().equals(5)
                                 && requestResult.getIdState().equals( 1L )
                                 && requestResult.getAmount().equals( createRequestDTO.amount() )
 
@@ -55,7 +55,7 @@ public class RequestMapperTest {
 
         Request result = requestDTOMapper.createRequestDTOToRequest(createRequestDTO2, null);
 
-        assertEquals("a@a.com", result.getEmail());
+        assertEquals(2, result.getPeriod());
         assertEquals(BigDecimal.TEN, result.getAmount());
         assertNull(result.getIdState());
     }
@@ -64,7 +64,7 @@ public class RequestMapperTest {
 
         Request result = requestDTOMapper.createRequestDTOToRequest(createRequestDTO3, 1L);
 
-        assertNull(result.getEmail());
+        assertNull(result.getPeriod());
         assertNull(result.getAmount());
         assertEquals(1L, result.getIdState());
     }

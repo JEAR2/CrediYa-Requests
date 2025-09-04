@@ -13,6 +13,8 @@ import org.reactivecommons.utils.ObjectMapper;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.math.BigDecimal;
+
 import static org.mockito.Mockito.when;
 
 
@@ -39,7 +41,7 @@ class StateRepositoryAdapterTest {
                 .name("Type Loan One")
                 .minimumAmount(12.0)
                 .maximumAmount(52000.0)
-                .interestRate(5.0)
+                .interestRate(BigDecimal.valueOf(10.0))
                 .automaticValidation(true)
                 .build();
         loanTypeEntity = LoanTypeEntity.builder()
