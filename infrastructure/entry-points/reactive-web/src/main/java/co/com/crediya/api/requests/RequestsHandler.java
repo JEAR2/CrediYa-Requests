@@ -48,12 +48,6 @@ public class RequestsHandler {
     )
     public Mono<ServerResponse> listenSaveRequest(ServerRequest serverRequest) {
 
-        String rawToken = serverRequest.headers().firstHeader(HttpHeaders.AUTHORIZATION);
-        String token = (rawToken != null && rawToken.startsWith("Bearer "))
-                ? rawToken.substring(7)
-                : rawToken;
-
-
         return serverRequest.principal()
                 .cast(JwtAuthenticationToken.class)
                 .map(auth -> auth.getToken().getSubject())
@@ -65,7 +59,7 @@ public class RequestsHandler {
                                                 .map(loanType -> requestDTOMapper.createRequestDTOToRequest(dto, loanType.getId()))
                                                 .flatMap(request ->
                                                         transactionManagement.inTransaction(
-                                                                requestUseCase.saveRequest(request, userEmailFromToken, token)
+                                                                requestUseCase.saveRequest(request, userEmailFromToken)
                                                         )
                                                 )
                                                 .map(request -> {

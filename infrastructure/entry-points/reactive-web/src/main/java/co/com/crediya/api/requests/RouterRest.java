@@ -28,7 +28,7 @@ public class RouterRest {
     })
     public RouterFunction<ServerResponse> routerFunction(RequestsHandler requestsHandler) {
         return route(POST(pathsConfig.getRequests()), this.requestRequestsHandler::listenSaveRequest)
-                .andRoute(GET("/api/v1/requests/list"), this.listRequestHandler::listarPorEstados);
+                .andRoute(GET("/api/v1/requests/list"), this.listRequestHandler::listByStates);
     }
 
 

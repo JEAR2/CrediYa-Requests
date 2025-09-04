@@ -9,10 +9,16 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Request {
-    String id;
-    BigDecimal amount;
-    Integer period;
-    String email;
-    Long idState;
-    Long idLoanType;
+    private String id;
+    private BigDecimal amount;
+    private Integer period;
+    private String email;
+    private Long idState;
+    private Long idLoanType;
+
+    private String state;
+    private String type;
+    private BigDecimal basePayment;
+    private String nameClient;
+    private BigDecimal interestRate;
 }

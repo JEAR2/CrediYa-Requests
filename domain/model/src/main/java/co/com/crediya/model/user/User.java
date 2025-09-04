@@ -2,6 +2,7 @@ package co.com.crediya.model.user;
 
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Getter
@@ -19,5 +20,5 @@ public class User {
     String identityDocument;
     String phoneNumber;
     Integer roleId;
-    Double baseSalary;
+    BigDecimal baseSalary;
 }

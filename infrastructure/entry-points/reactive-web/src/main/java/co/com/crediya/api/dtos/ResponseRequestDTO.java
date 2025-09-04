@@ -6,5 +6,10 @@ public record ResponseRequestDTO(BigDecimal amount,
                                  Integer period,
                                  String email,
                                  Long idState,
-                                 Long idLoanType) {
+                                 Long idLoanType,
+                                 String state,
+                                 String type,
+                                 BigDecimal basePayment,
+                                 String nameClient,
+                                 BigDecimal interestRate) {
 }

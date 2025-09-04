@@ -16,9 +16,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class RequestMapperTest {
 
-    private final CreateRequestDTO  createRequestDTO = new CreateRequestDTO(new BigDecimal("10000"),5,"a@a.com",1L,"CODE1");
-    private final CreateRequestDTO  createRequestDTO2 = new CreateRequestDTO(BigDecimal.TEN,null,"a@a.com",null,null);
-    private final CreateRequestDTO  createRequestDTO3 = new CreateRequestDTO(null,5,null,1L,"CODE1");
+    private final CreateRequestDTO  createRequestDTO = new CreateRequestDTO(new BigDecimal("10000"),5,1L,"CODE1");
+    private final CreateRequestDTO  createRequestDTO2 = new CreateRequestDTO(BigDecimal.TEN,null,null,null);
+    private final CreateRequestDTO  createRequestDTO3 = new CreateRequestDTO(new BigDecimal("10000"),5,1L,"CODE1");
     private final Request request = Request.builder().id("1").amount(new BigDecimal("10000")).period(2).email("a@a.com").idState(1L).idLoanType(1L).build();
 
     private final RequestDTOMapper requestDTOMapper = Mappers.getMapper(RequestDTOMapper.class);
@@ -29,7 +29,7 @@ public class RequestMapperTest {
 
         StepVerifier.create(result)
                 .expectNextMatches( requestResult ->
-                        requestResult.getEmail().equals(createRequestDTO.email())
+                        requestResult.getEmail().equals("a@a.com")
                                 && requestResult.getIdState().equals( 1L )
                                 && requestResult.getAmount().equals( createRequestDTO.amount() )
 

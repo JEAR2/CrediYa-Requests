@@ -17,7 +17,7 @@ import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
-class LoanTypeRepositoryAdapterTest {
+class StateRepositoryAdapterTest {
 
     @InjectMocks
     LoanTypeRepositoryAdapter  loanTypeRepositoryAdapter;

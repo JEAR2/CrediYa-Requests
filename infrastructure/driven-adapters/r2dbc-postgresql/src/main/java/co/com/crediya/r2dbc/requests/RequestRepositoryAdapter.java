@@ -33,9 +33,9 @@ public class RequestRepositoryAdapter extends ReactiveAdapterOperations<
 
 
     @Override
-    public Flux<Request> findRequestsByState(List<Long> estados, int page, int size) {
+    public Flux<Request> findRequestsByState(List<Long> states, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return repository.findByIdStateIn(estados, pageable)
+        return repository.findByIdStateIn(states, pageable)
                 .map(super::toEntity);
     }
 }
