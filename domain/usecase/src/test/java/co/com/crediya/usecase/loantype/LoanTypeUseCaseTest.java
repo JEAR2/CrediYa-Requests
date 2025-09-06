@@ -29,7 +29,7 @@ class LoanTypeUseCaseTest {
     private LoanType loanType;
     @BeforeEach
     void setUp() {
-        loanType = new LoanType().toBuilder().id(1L).name("LoanType 1").code("CREDI1").interestRate(BigDecimal.valueOf(10.0)).minimumAmount(12000.0).maximumAmount(26000000.0).automaticValidation(true).build();
+        loanType = new LoanType().toBuilder().id(1L).name("LoanType 1").code("CREDI1").interestRate(15.0).minimumAmount(12000.0).maximumAmount(26000000.0).automaticValidation(true).build();
     }
 
 

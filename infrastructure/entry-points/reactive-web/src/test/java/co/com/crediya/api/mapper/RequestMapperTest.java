@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class RequestMapperTest {
 
-    private final CreateRequestDTO  createRequestDTO = new CreateRequestDTO(new BigDecimal("10000"),5,1L,"CODE1");
-    private final CreateRequestDTO  createRequestDTO2 = new CreateRequestDTO(BigDecimal.TEN,2,null,null);
+    private final CreateRequestDTO  createRequestDTO = new CreateRequestDTO(10000.0,5,1L,"CODE1");
+    private final CreateRequestDTO  createRequestDTO2 = new CreateRequestDTO(10000.0,2,null,null);
     private final CreateRequestDTO  createRequestDTO3 = new CreateRequestDTO(null,null,1L,"CODE1");
-    private final Request request = Request.builder().id("1").amount(new BigDecimal("10000")).period(2).email("a@a.com").idState(1L).idLoanType(1L).build();
+    private final Request request = Request.builder().id(1L).amount(10000.0).period(2).email("a@a.com").idState(1L).idLoanType(1L).build();
 
     private final RequestDTOMapper requestDTOMapper = Mappers.getMapper(RequestDTOMapper.class);
 
@@ -56,7 +56,7 @@ public class RequestMapperTest {
         Request result = requestDTOMapper.createRequestDTOToRequest(createRequestDTO2, null);
 
         assertEquals(2, result.getPeriod());
-        assertEquals(BigDecimal.TEN, result.getAmount());
+        assertEquals(10000.0, result.getAmount());
         assertNull(result.getIdState());
     }
     @Test

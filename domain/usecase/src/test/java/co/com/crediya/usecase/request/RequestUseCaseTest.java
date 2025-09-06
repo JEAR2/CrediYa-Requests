@@ -31,11 +31,11 @@ class RequestUseCaseTest {
     private RequestUseCase requestUseCase;
     private UserGateway userGateway;
     private Request createRequest() {
-        return new Request().toBuilder().id("1").amount(new BigDecimal("1000")).email("a@a.com").idState(1L).idLoanType(1L).period(4).build();
+        return new Request().toBuilder().id(1L).amount(10000.0).email("a@a.com").idState(1L).idLoanType(1L).period(4).build();
     }
 
     private User createUser() {
-        return new User().toBuilder().name("John").lastName("Acevedo").identityDocument("222").birthDate(new Date()).phoneNumber("222").baseSalary(BigDecimal.valueOf(10.0)).build();
+        return new User().toBuilder().name("John").lastName("Acevedo").identityDocument("222").birthDate(new Date()).phoneNumber("222").baseSalary(100000.0).build();
     }
 
     private Request request;
@@ -52,10 +52,14 @@ class RequestUseCaseTest {
         userGateway = Mockito.mock(UserGateway.class);
         requestUseCase = new RequestUseCase(requestRepository,stateRepository,loanTypeRepository,userGateway);
         request = Request.builder()
-                .id("1")
+                .id(1L)
                 .email("test@test.com")
                 .idState(1L)
                 .idLoanType(100L)
+                .amount(10000.0)
+                .basePayment(1000000.0)
+                .period(10)
+                .interestRate(15.0)
                 .build();
 
         state = State.builder()
@@ -67,7 +71,7 @@ class RequestUseCaseTest {
         loanType = LoanType.builder()
                 .id(100L)
                 .name("PERSONAL")
-                .interestRate(BigDecimal.valueOf(0.05))
+                .interestRate(15.0)
                 .build();
     }
 
@@ -112,7 +116,10 @@ class RequestUseCaseTest {
         when(requestRepository.findRequestsByState(stateIds, 0, 10)).thenReturn(Flux.just(request));
         when(stateRepository.findById(1L)).thenReturn(Mono.just(state));
         when(loanTypeRepository.findById(100L)).thenReturn(Mono.just(loanType));
+        when(requestRepository.findRequestsByState(stateIds, 0, 10)).thenReturn(Flux.just(request));
+        when(requestRepository.findRequestsByStateApprovedByUser(request.getEmail(),"APPROVED")).thenReturn(Flux.just(request));
         when(userGateway.findByEmail("test@test.com")).thenReturn(Mono.just(user));
+
 
         // Act
         Flux<Request> result = requestUseCase.findRequestByState(states, 0, 10);
@@ -122,9 +129,9 @@ class RequestUseCaseTest {
                 .assertNext(enrichedRequest -> {
                     assertEquals("PENDING", enrichedRequest.getState());
                     assertEquals("PERSONAL", enrichedRequest.getType());
-                    assertEquals(BigDecimal.valueOf(0.05), enrichedRequest.getInterestRate());
+                    assertEquals(15.0, enrichedRequest.getInterestRate());
                     assertEquals("John", enrichedRequest.getNameClient());
-                    assertEquals(BigDecimal.valueOf(10.0), enrichedRequest.getBasePayment());
+                    assertEquals(100000.0, enrichedRequest.getBasePayment());
                 })
                 .verifyComplete();
 

@@ -43,8 +43,8 @@ class RequestRepositoryAdapterTest {
     @BeforeEach
     void setUp() {
          request = Request.builder()
-                .id("1")
-                .amount(new BigDecimal("10000"))
+                .id(1L)
+                .amount(100000.0)
                 .period(6)
                 .email("a@a.com")
                 .idState(1L)
@@ -52,8 +52,8 @@ class RequestRepositoryAdapterTest {
                 .build();
 
         requestEntity = RequestsEntity.builder()
-                .id("1")
-                .amount(new BigDecimal("10000"))
+                .id(1L)
+                .amount(100000.0)
                 .period(6)
                 .email("a@a.com")
                 .idState(1L)
@@ -91,7 +91,7 @@ class RequestRepositoryAdapterTest {
 
         // Assert
         StepVerifier.create(result)
-                .expectNextMatches(r -> r.getId().equals("1") && r.getEmail().equals("a@a.com"))
+                .expectNextMatches(r -> r.getId().equals(1L) && r.getEmail().equals("a@a.com"))
                 .verifyComplete();
 
         verify(requestRepository).findByIdStateIn(states, pageable);

@@ -74,27 +74,20 @@ public class RequestUseCase implements IRequestUseCase {
                     });
                 })
                 .flatMap(req -> requestRepository.findRequestsByStateApprovedByUser(req.getEmail(), "APPROVED")
-                        .map(r -> calculateMonthlyPayment(r.getAmount(), r.getPeriod(), r.getInterestRate()))
-                        .reduce(BigDecimal.ZERO, BigDecimal::add)
+                        .map(r -> calculateMonthlyPayment(req.getAmount(), req.getPeriod(), req.getInterestRate()))
+                        .reduce(0.0,Double::sum)
                         .map(totalDebt -> {
                             req.setTotalMonthlyDebtApprovedRequests(totalDebt);
                             return req;
                         }));
     }
 
-    private BigDecimal calculateMonthlyPayment(BigDecimal amount, int period, BigDecimal annualRate) {
-        if (annualRate == null || annualRate.compareTo(BigDecimal.ZERO) == 0) {
-            return amount.divide(BigDecimal.valueOf(period), 2, RoundingMode.HALF_UP);
+
+        private double calculateMonthlyPayment(double amount, int period, double annualRate) {
+            double total = amount + (amount * (annualRate / 100.0));
+            double monthly = total / period;
+            return Math.round(monthly * 100.0) / 100.0;
+
         }
 
-        BigDecimal monthlyRate = annualRate.divide(BigDecimal.valueOf(12 * 100), 10, RoundingMode.HALF_UP);
-
-        BigDecimal numerator = amount.multiply(monthlyRate);
-        BigDecimal denominator = BigDecimal.ONE.subtract(
-                BigDecimal.ONE.add(monthlyRate).pow(-period, new MathContext(10, RoundingMode.HALF_UP))
-        );
-
-        return numerator.divide(denominator, 2, RoundingMode.HALF_UP);
-
-    }
 }

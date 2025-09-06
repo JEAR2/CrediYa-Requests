@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Builder(toBuilder = true)
 public class Request {
     private Long id;
-    private BigDecimal amount;
+    private Double amount;
     private Integer period;
     private String email;
     private Long idState;
@@ -18,8 +18,8 @@ public class Request {
 
     private String state;
     private String type;
-    private BigDecimal basePayment;
+    private Double basePayment;
     private String nameClient;
-    private BigDecimal interestRate;
-    private BigDecimal totalMonthlyDebtApprovedRequests;
+    private Double interestRate;
+    private Double totalMonthlyDebtApprovedRequests;
 }

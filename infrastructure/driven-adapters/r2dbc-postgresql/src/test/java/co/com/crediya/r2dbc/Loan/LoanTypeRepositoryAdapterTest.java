@@ -12,7 +12,6 @@ import org.reactivecommons.utils.ObjectMapper;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.math.BigDecimal;
 
 import static org.mockito.Mockito.*;
 
@@ -44,7 +43,7 @@ class LoanTypeRepositoryAdapterTest {
                 .id(1L)
                 .code("HOME")
                 .name("Home Loan")
-                .interestRate(new BigDecimal("5.5"))
+                .interestRate(15.0)
                 .build();
     }
 

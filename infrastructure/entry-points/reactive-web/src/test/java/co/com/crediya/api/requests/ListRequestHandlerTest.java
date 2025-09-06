@@ -43,9 +43,9 @@ class ListRequestHandlerTest {
         listRequestHandler = new ListRequestHandler(requestUseCase, requestDTOMapper);
 
         request = Request.builder()
-                .id("1")
+                .id(1L)
                 .email("test@test.com")
-                .amount(BigDecimal.valueOf(1000))
+                .amount(261000.0)
                 .period(12)
                 .idLoanType(1L)
                 .idState(1L)
@@ -61,7 +61,7 @@ class ListRequestHandlerTest {
                 request.getEmail(),
                 request.getIdState(),
                 request.getIdLoanType(),
-                "", "", request.getAmount(), "", BigDecimal.TEN
+                "", "", request.getAmount(), "", 12.0,12000.0
         );
 
         when(requestUseCase.findRequestByState(anyList(), eq(0), eq(10)))

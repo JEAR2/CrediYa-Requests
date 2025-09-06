@@ -18,7 +18,7 @@ public class LoanType {
     String code;
     Double minimumAmount;
     Double maximumAmount;
-    BigDecimal interestRate;
+    Double interestRate;
     Boolean automaticValidation;
 
 }

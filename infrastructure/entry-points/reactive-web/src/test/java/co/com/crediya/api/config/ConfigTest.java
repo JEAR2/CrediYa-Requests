@@ -54,11 +54,11 @@ class ConfigTest {
     private RequestDTOMapper requestDTOMapper;
 
     private final Request request = Request.builder()
-            .id("1").amount(new BigDecimal("10000")).email("a@a.com").period(5).idState(1L).idLoanType(1L).build();
+            .id(1L).amount(100000.0).email("a@a.com").period(5).idState(1L).idLoanType(1L).build();
 
-    private final ResponseRequestDTO responseRequestDTO = new ResponseRequestDTO(new BigDecimal("10000"),5,"a@a.com",1L,1L,"","",new BigDecimal("10000"),"", BigDecimal.valueOf(10.0));
+    private final ResponseRequestDTO responseRequestDTO = new ResponseRequestDTO(10000.0,5,"a@a.com",1L,1L,"","",1000.0,"", 15.0,120000.0);
 
-    private final LoanType loanType = LoanType.builder().id(1L).name("Type1").code("TYPE1").minimumAmount(1500.0).maximumAmount(350000.0).interestRate(BigDecimal.valueOf(10.0)).automaticValidation(true).build();
+    private final LoanType loanType = LoanType.builder().id(1L).name("Type1").code("TYPE1").minimumAmount(1500.0).maximumAmount(350000.0).interestRate(15.0).automaticValidation(true).build();
 
 
     @BeforeEach

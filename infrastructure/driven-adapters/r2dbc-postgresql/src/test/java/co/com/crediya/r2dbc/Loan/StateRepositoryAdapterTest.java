@@ -41,7 +41,7 @@ class StateRepositoryAdapterTest {
                 .name("Type Loan One")
                 .minimumAmount(12.0)
                 .maximumAmount(52000.0)
-                .interestRate(BigDecimal.valueOf(10.0))
+                .interestRate(15.0)
                 .automaticValidation(true)
                 .build();
         loanTypeEntity = LoanTypeEntity.builder()

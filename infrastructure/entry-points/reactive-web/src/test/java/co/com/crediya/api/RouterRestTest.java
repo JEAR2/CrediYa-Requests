@@ -63,10 +63,10 @@ class RouterRestTest {
     @Autowired
     private PathsConfig pathsConfig;
 
-    private final CreateRequestDTO  createRequestDTO = new CreateRequestDTO(new BigDecimal("10000"),5,1L,"CODE1");
-    private final ResponseRequestDTO responseRequestDTO = new ResponseRequestDTO(new BigDecimal("10000"),5,"a@a.com",1L,1L,"","",BigDecimal.valueOf(10.0),"",BigDecimal.valueOf(10.0));
-    private final Request request = Request.builder().id("1").amount(new BigDecimal("10000")).period(2).email("a@a.com").idState(1L).idLoanType(1L).build();
-    private final LoanType loanType = LoanType.builder().id(1L).name("Tipo 1").code("CODE1").interestRate(BigDecimal.valueOf(15.0)).minimumAmount(152000.0).maximumAmount(162000000.0).automaticValidation(true).build();
+    private final CreateRequestDTO  createRequestDTO = new CreateRequestDTO(10000.0,5,1L,"CODE1");
+    private final ResponseRequestDTO responseRequestDTO = new ResponseRequestDTO(10000.0,5,"a@a.com",1L,1L,"","",1000.0,"",12.0,1200000.0);
+    private final Request request = Request.builder().id(1L).amount(1000.0).period(2).email("a@a.com").idState(1L).idLoanType(1L).build();
+    private final LoanType loanType = LoanType.builder().id(1L).name("Tipo 1").code("CODE1").interestRate(15.0).minimumAmount(152000.0).maximumAmount(162000000.0).automaticValidation(true).build();
     @Test
     void shouldLoadRequestPathProperties() {
         assertEquals(REQUESTS_PATH, pathsConfig.getRequests());

@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 public record CreateRequestDTO (
         @NotNull(message = "is required!")
-        BigDecimal amount,
+        Double amount,
         @NotNull(message = "is required!")
         Integer period,
         @NotNull(message = "is required!")

@@ -17,7 +17,7 @@ public class RequestsEntity {
     @Id
     @Column("request_id")
     private Long id;
-    private BigDecimal amount;
+    private Double amount;
     private Integer period;
     private String email;
     private Long idState;
