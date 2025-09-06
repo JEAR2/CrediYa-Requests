@@ -50,6 +50,7 @@ public class RequestsHandler {
                 .map(auth -> auth.getToken().getSubject())
                 .flatMap(userEmailFromToken ->
                         serverRequest.bodyToMono(CreateRequestDTO.class)
+                                .doOnNext(loanRequest -> log.info("Saving loan request={}", loanRequest))
                                 .flatMap(validatorUtil::validate)
                                 .flatMap(dto ->
                                         loanTypeUseCasePort.findByCode(dto.codeLoanType())
@@ -59,6 +60,8 @@ public class RequestsHandler {
                                                                 requestUseCase.saveRequest(request, userEmailFromToken)
                                                         )
                                                 )
+                                                .doOnSuccess(saved -> log.info("LoanRequest guardado correctamente: {}", saved))
+                                                .doOnError(error -> log.error("Error al guardar LoanRequest: {}", error.getMessage(), error))
                                                 .map(request -> {
                                                     request.setEmail(userEmailFromToken);
                                                     return request;

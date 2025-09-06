@@ -5,6 +5,7 @@ import co.com.crediya.api.util.HandlersResponseUtil;
 import co.com.crediya.model.exceptions.enums.ExceptionStatusCode;
 import co.com.crediya.usecase.request.RequestUseCase;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -17,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ListRequestHandler {
@@ -40,6 +42,9 @@ public class ListRequestHandler {
         return requestUseCase.findRequestByState(states, page, size)
                 .map(requestDTOMapper::toResponseDTO)
                 .collectList()
+                .doOnSuccess(results -> log.info("Found {} requests for states={}", results.size(), states))
+                .doOnError(ex -> log.error("Error listing requests by states={} page={} size={} - reason={}",
+                        states, page, size, ex.getMessage(), ex))
                 .flatMap(savedRequest ->
                         ServerResponse.created(URI.create("/requests/state"))
                                 .contentType(MediaType.APPLICATION_JSON)
