@@ -9,4 +9,5 @@ import java.util.List;
 public interface RequestRepository {
     Mono<Request> save(Request request);
     Flux<Request> findRequestsByState(List<Long> states, int page, int size);
+    Flux<Request> findRequestsByStateApprovedByUser(String email,String state);
 }

@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Request {
-    private String id;
+    private Long id;
     private BigDecimal amount;
     private Integer period;
     private String email;
@@ -21,4 +21,5 @@ public class Request {
     private BigDecimal basePayment;
     private String nameClient;
     private BigDecimal interestRate;
+    private BigDecimal totalMonthlyDebtApprovedRequests;
 }

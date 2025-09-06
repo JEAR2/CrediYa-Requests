@@ -11,5 +11,6 @@ public record ResponseRequestDTO(BigDecimal amount,
                                  String type,
                                  BigDecimal basePayment,
                                  String nameClient,
-                                 BigDecimal interestRate) {
+                                 BigDecimal interestRate,
+                                 BigDecimal totalMonthlyDebtApprovedRequests) {
 }

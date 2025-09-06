@@ -38,4 +38,9 @@ public class RequestRepositoryAdapter extends ReactiveAdapterOperations<
         return repository.findByIdStateIn(states, pageable)
                 .map(super::toEntity);
     }
+
+    @Override
+    public Flux<Request> findRequestsByStateApprovedByUser(String email, String state) {
+        return repository.findRequestsByStateApprovedByUser(email,state).map(super::toEntity);
+    }
 }

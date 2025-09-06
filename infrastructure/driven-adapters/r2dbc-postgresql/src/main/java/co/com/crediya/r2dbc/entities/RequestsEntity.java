@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 public class RequestsEntity {
     @Id
     @Column("request_id")
-    private String id;
+    private Long id;
     private BigDecimal amount;
     private Integer period;
     private String email;
