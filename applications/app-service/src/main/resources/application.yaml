@@ -33,6 +33,7 @@ adapter:
 routes:
   paths:
     requests: "/api/v1/requests"
+    requestId: "/api/v1/request/{id}"
     requestsList: "/api/v1/requests/list"
 
 resilience4j:

@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -43,4 +44,10 @@ public class RequestRepositoryAdapter extends ReactiveAdapterOperations<
     public Flux<Request> findRequestsByStateApprovedByUser(String email, String state) {
         return repository.findRequestsByStateApprovedByUser(email,state).map(super::toEntity);
     }
+
+    @Override
+    public Mono<Request> findById(String id) {
+        return repository.findById(id).map(super::toEntity);
+    }
+
 }

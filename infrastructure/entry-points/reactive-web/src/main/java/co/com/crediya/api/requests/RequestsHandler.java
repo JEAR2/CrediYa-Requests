@@ -2,6 +2,7 @@ package co.com.crediya.api.requests;
 
 import co.com.crediya.api.dtos.CreateRequestDTO;
 import co.com.crediya.api.dtos.ResponseRequestDTO;
+import co.com.crediya.api.dtos.UpdateStateRequestDTO;
 import co.com.crediya.api.exceptions.model.ResponseDTO;
 import co.com.crediya.api.mapper.RequestDTOMapper;
 import co.com.crediya.api.util.HandlersResponseUtil;
@@ -77,6 +78,23 @@ public class RequestsHandler {
                                                 ))
                                 )
                 );
+    }
+
+    public Mono<ServerResponse> listenUpdateStateRequest(ServerRequest serverRequest){
+        String id = serverRequest.pathVariable("id");
+
+        return serverRequest.bodyToMono(UpdateStateRequestDTO.class)
+                .flatMap(validatorUtil::validate)
+                .flatMap(updateStateRequestDTO -> requestUseCase.updateStateRequest(id, updateStateRequestDTO.state()))
+                .map(requestDTOMapper::toResponseDTO)
+                .flatMap(updateRequest ->
+                ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(HandlersResponseUtil.buildBodySuccessResponse(
+                                ExceptionStatusCode.OK.status(),
+                                updateRequest
+                        ))
+        );
     }
 
 

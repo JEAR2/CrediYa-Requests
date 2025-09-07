@@ -15,9 +15,6 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.List;
 
 
@@ -82,8 +79,24 @@ public class RequestUseCase implements IRequestUseCase {
                         }));
     }
 
+    @Override
+    public Mono<Request> updateStateRequest(String id, String state) {
 
-        private double calculateMonthlyPayment(double amount, int period, double annualRate) {
+        return requestRepository.findById(id)
+                .switchIfEmpty(Mono.error(new RequestResourceNotFoundException(ExceptionMessages.REQUEST_DOES_NOT_EXIST.getMessage())))
+                .flatMap(request ->
+                        stateRepository.findByState(state)
+                                .switchIfEmpty(Mono.error(new RequestResourceNotFoundException(ExceptionMessages.STATE_DOES_NOT_EXIST.getMessage())))
+                                .flatMap(stateNew -> {
+                                    request.setIdState(stateNew.getId());
+                                    return requestRepository.save(request);
+                                })
+                );
+
+    }
+
+
+    private double calculateMonthlyPayment(double amount, int period, double annualRate) {
             double total = amount + (amount * (annualRate / 100.0));
             double monthly = total / period;
             return Math.round(monthly * 100.0) / 100.0;

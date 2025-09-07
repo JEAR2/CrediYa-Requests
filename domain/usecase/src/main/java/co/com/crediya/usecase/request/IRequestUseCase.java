@@ -9,5 +9,5 @@ import java.util.List;
 public interface IRequestUseCase {
     Mono<Request> saveRequest(Request request, String userEmailFromToken);
     Flux<Request> findRequestByState(List<String> state, int page, int size);
-
+    Mono<Request> updateStateRequest(String id, String codeState);
 }
