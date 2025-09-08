@@ -5,6 +5,8 @@ import co.com.crediya.model.exceptions.RequestResourceNotFoundException;
 import co.com.crediya.model.exceptions.enums.ExceptionMessages;
 import co.com.crediya.model.loantype.LoanType;
 import co.com.crediya.model.loantype.gateways.LoanTypeRepository;
+import co.com.crediya.model.notification.QueuePort;
+import co.com.crediya.model.notification.model.MessageNotification;
 import co.com.crediya.model.request.Request;
 import co.com.crediya.model.request.gateways.RequestRepository;
 import co.com.crediya.model.state.State;
@@ -22,6 +24,7 @@ import java.util.List;
 public class RequestUseCase implements IRequestUseCase {
 
     private final RequestRepository requestRepository;
+    private final QueuePort  queuePort;
     private final StateRepository stateRepository;
     private final LoanTypeRepository loanTypeRepository;
     private final UserGateway userGateway;
@@ -89,7 +92,10 @@ public class RequestUseCase implements IRequestUseCase {
                                 .switchIfEmpty(Mono.error(new RequestResourceNotFoundException(ExceptionMessages.STATE_DOES_NOT_EXIST.getMessage())))
                                 .flatMap(stateNew -> {
                                     request.setIdState(stateNew.getId());
-                                    return requestRepository.save(request);
+                                    return requestRepository.save(request)
+                                            .flatMap(saveRequest-> queuePort.publishChangeStatus(MessageNotification.builder()
+                                                    .idRequest(saveRequest.getId()).state(state).email(saveRequest.getEmail()).build())
+                                            .thenReturn(saveRequest));
                                 })
                 );
 

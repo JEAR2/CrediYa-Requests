@@ -71,3 +71,7 @@ security:
   jwt:
     expiration: 3600000
     public-key-location: ${JWT_PUBLIC_KEY}
+
+aws:
+  sqs:
+    queueUrl: ${AWS_URL_SQS}

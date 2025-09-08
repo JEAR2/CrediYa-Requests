@@ -61,8 +61,8 @@ public class RequestsHandler {
                                                                 requestUseCase.saveRequest(request, userEmailFromToken)
                                                         )
                                                 )
-                                                .doOnSuccess(saved -> log.info("LoanRequest guardado correctamente: {}", saved))
-                                                .doOnError(error -> log.error("Error al guardar LoanRequest: {}", error.getMessage(), error))
+                                                .doOnSuccess(saved -> log.info("Request saved successfully: {}", saved))
+                                                .doOnError(error -> log.error("Error saving Request: {}", error.getMessage(), error))
                                                 .map(request -> {
                                                     request.setEmail(userEmailFromToken);
                                                     return request;
@@ -86,6 +86,8 @@ public class RequestsHandler {
         return serverRequest.bodyToMono(UpdateStateRequestDTO.class)
                 .flatMap(validatorUtil::validate)
                 .flatMap(updateStateRequestDTO -> requestUseCase.updateStateRequest(id, updateStateRequestDTO.state()))
+                .doOnSuccess(saved -> log.info("Request successfully updated: {}", saved))
+                .doOnError(error -> log.error("Error updating Request: {}", error.getMessage(), error))
                 .map(requestDTOMapper::toResponseDTO)
                 .flatMap(updateRequest ->
                 ServerResponse.ok()
