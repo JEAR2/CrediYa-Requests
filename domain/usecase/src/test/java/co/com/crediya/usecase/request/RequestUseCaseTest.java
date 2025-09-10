@@ -3,6 +3,7 @@ package co.com.crediya.usecase.request;
 import co.com.crediya.model.exceptions.RequestResourceNotFoundException;
 import co.com.crediya.model.loantype.LoanType;
 import co.com.crediya.model.loantype.gateways.LoanTypeRepository;
+import co.com.crediya.model.notification.QueuePort;
 import co.com.crediya.model.request.Request;
 import co.com.crediya.model.request.gateways.RequestRepository;
 import co.com.crediya.model.state.State;
@@ -29,6 +30,7 @@ class RequestUseCaseTest {
     private StateRepository stateRepository;
     private LoanTypeRepository loanTypeRepository;
     private RequestUseCase requestUseCase;
+    private QueuePort  queuePort;
     private UserGateway userGateway;
     private Request createRequest() {
         return new Request().toBuilder().id(1L).amount(10000.0).email("a@a.com").idState(1L).idLoanType(1L).period(4).build();
@@ -46,11 +48,12 @@ class RequestUseCaseTest {
     @BeforeEach
     void setUp() {
         requestRepository = Mockito.mock(RequestRepository.class);
+        queuePort = Mockito.mock(QueuePort.class);
         requestUseCase = Mockito.mock(RequestUseCase.class);
         stateRepository = Mockito.mock(StateRepository.class);
         loanTypeRepository = Mockito.mock(LoanTypeRepository.class);
         userGateway = Mockito.mock(UserGateway.class);
-        requestUseCase = new RequestUseCase(requestRepository,stateRepository,loanTypeRepository,userGateway);
+        requestUseCase = new RequestUseCase(requestRepository,queuePort,stateRepository,loanTypeRepository,userGateway);
         request = Request.builder()
                 .id(1L)
                 .email("test@test.com")

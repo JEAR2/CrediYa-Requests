@@ -31,4 +31,9 @@ public class StateRepositoryAdapter extends ReactiveAdapterOperations<
     public Flux<State> findByCodeIn(List<String> code) {
         return repository.findByCodeIn(code).map(super::toEntity);
     }
+
+    @Override
+    public Mono<State> findByState(String codeState) {
+        return repository.findByCode(codeState).map(super::toEntity);
+    }
 }
