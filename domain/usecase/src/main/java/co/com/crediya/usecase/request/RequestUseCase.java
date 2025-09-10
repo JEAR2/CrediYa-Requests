@@ -1,5 +1,6 @@
 package co.com.crediya.usecase.request;
 
+import co.com.crediya.model.enums.LoanStateCodes;
 import co.com.crediya.model.exceptions.RequestBadRequestException;
 import co.com.crediya.model.exceptions.RequestResourceNotFoundException;
 import co.com.crediya.model.exceptions.enums.ExceptionMessages;
@@ -73,7 +74,7 @@ public class RequestUseCase implements IRequestUseCase {
                         return requestAll;
                     });
                 })
-                .flatMap(req -> requestRepository.findRequestsByStateApprovedByUser(req.getEmail(), "APPROVED")
+                .flatMap(req -> requestRepository.findRequestsByStateApprovedByUser(req.getEmail(), LoanStateCodes.APPROVED.getStatus())
                         .map(r -> calculateMonthlyPayment(req.getAmount(), req.getPeriod(), req.getInterestRate()))
                         .reduce(0.0,Double::sum)
                         .map(totalDebt -> {

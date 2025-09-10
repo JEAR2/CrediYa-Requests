@@ -47,6 +47,6 @@ CREATE TABLE rq.requests (
 -- Insertar una solicitud de prueba
 INSERT INTO rq.requests (request_id, amount, period, email, id_state, id_loan_type) VALUES
     (1, 2000.0, 12, 'jhedacro@gmail.com', 5, 1),
-    (2, 2000.0, 10, 'john.acevedo@example.com', 3, 2),
+    (2, 2000.0, 10, 'brayanix27@gmail.com', 3, 2),
     (3, 2000.0, 10, 'john.acevedo@example.com', 5, 1);
 
