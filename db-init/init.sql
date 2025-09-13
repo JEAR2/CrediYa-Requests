@@ -36,7 +36,7 @@ INSERT INTO rq.loan_type (id, name, code, minimum_amount, maximum_amount, intere
 
 -- Crear tabla requests
 CREATE TABLE rq.requests (
-                             request_id BIGINT PRIMARY KEY,
+                             request_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                              amount DOUBLE PRECISION,
                              period INT,
                              email VARCHAR(100) NOT NULL,
@@ -44,9 +44,10 @@ CREATE TABLE rq.requests (
                              id_loan_type BIGINT REFERENCES rq.loan_type(id)
 );
 
+
 -- Insertar una solicitud de prueba
-INSERT INTO rq.requests (request_id, amount, period, email, id_state, id_loan_type) VALUES
-    (1, 2000.0, 12, 'jhedacro@gmail.com', 5, 1),
-    (2, 2000.0, 10, 'brayanix27@gmail.com', 3, 2),
-    (3, 2000.0, 10, 'john.acevedo@example.com', 5, 1);
+INSERT INTO rq.requests (amount, period, email, id_state, id_loan_type) VALUES
+    ( 2000.0, 12, 'jhedacro@gmail.com', 5, 1),
+    ( 2000.0, 10, 'brayanix27@gmail.com', 3, 2),
+    ( 2000.0, 10, 'jhedacro@hotmail.com', 5, 1);
 

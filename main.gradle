@@ -28,6 +28,7 @@ subprojects {
     }
 
     dependencies {
+		implementation platform('software.amazon.awssdk:bom:2.32.13')
         implementation 'io.projectreactor:reactor-core'
         implementation 'io.projectreactor.addons:reactor-extra'
 
@@ -98,7 +99,9 @@ tasks.register('jacocoMergedReport', JacocoReport) {
             files(subprojects.sourceSets.main.output).collect {
                 fileTree(dir: it, exclude: [
                         '**/co/com/crediya/security/config/**',
-                        '**/co/com/crediya/security/enums/**'
+                        '**/co/com/crediya/security/enums/**',
+                        '**/co/com/crediya/metrics/aws**',
+                        '**/co/com/crediya/api/config/**'
                 ])
             }
     )

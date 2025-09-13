@@ -7,6 +7,7 @@ import co.com.crediya.model.exceptions.enums.ExceptionMessages;
 import co.com.crediya.model.loantype.LoanType;
 import co.com.crediya.model.loantype.gateways.LoanTypeRepository;
 import co.com.crediya.model.notification.QueuePort;
+import co.com.crediya.model.notification.model.AutoValidationPayload;
 import co.com.crediya.model.notification.model.MessageNotification;
 import co.com.crediya.model.request.Request;
 import co.com.crediya.model.request.gateways.RequestRepository;
@@ -19,6 +20,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @RequiredArgsConstructor
@@ -37,17 +39,59 @@ public class RequestUseCase implements IRequestUseCase {
                 )));
     }
 
-
     @Override
     public Mono<Request> saveRequest(Request request, String userEmailFromToken) {
-        return validateUser(userEmailFromToken)
+        return validateAndGetUser(userEmailFromToken)
+                .flatMap(user -> validateLoanType(request.getIdLoanType())
+                        .flatMap(loanType -> processRequest(request, userEmailFromToken, user, loanType)));
+    }
+
+    private Mono<User> validateAndGetUser(String userEmail) {
+        return validateUser(userEmail)
                 .switchIfEmpty(Mono.error(new RequestBadRequestException(
-                        ExceptionMessages.USER_DOES_NOT_MATCH.getMessage())))
-                .flatMap(exists -> {
-                    request.setIdState(request.getIdState());
-                    request.setEmail(userEmailFromToken);
-                    return requestRepository.save(request);
-                });
+                        ExceptionMessages.USER_DOES_NOT_MATCH.getMessage())));
+    }
+
+    private Mono<LoanType> validateLoanType(Long loanTypeId) {
+        return loanTypeRepository.findById(loanTypeId)
+                .switchIfEmpty(Mono.error(new RequestBadRequestException(
+                        ExceptionMessages.LOAN_TYPE_DOES_NOT_EXIST.getMessage())));
+    }
+
+    private Mono<Request> processRequest(Request request, String userEmailFromToken,
+                                         User user, LoanType loanType) {
+        request.setEmail(userEmailFromToken);
+        return requestRepository.save(request)
+                .flatMap(saved -> handleAutoValidation(saved, user, loanType));
+    }
+
+    private Mono<Request> handleAutoValidation(Request saved, User user, LoanType loanType) {
+        boolean autoValidation = Boolean.TRUE.equals(loanType.getAutomaticValidation());
+        if (!autoValidation) {
+            return Mono.just(saved);
+        }
+
+        return computeTotalMonthlyDebt(saved.getEmail())
+                .defaultIfEmpty(0.0)
+                .flatMap(totalDebt -> publishAutoValidation(saved, user, loanType, totalDebt));
+    }
+
+    private Mono<Request> publishAutoValidation(Request saved, User user,
+                                                LoanType loanType, Double totalDebt) {
+        AutoValidationPayload payload = AutoValidationPayload.builder()
+                .requestId(String.valueOf(saved.getId()))
+                .applicantId(saved.getEmail())
+                .salary(user.getBaseSalary())
+                .amount(saved.getAmount())
+                .annualRate(loanType.getInterestRate())
+                .termMonths(saved.getPeriod())
+                .CurrentMonthlyDebt(totalDebt)
+                .email(saved.getEmail())
+                .traceId(UUID.randomUUID().toString())
+                .build();
+
+        return queuePort.publishAutoValidation(payload)
+                .thenReturn(saved);
     }
 
     @Override
@@ -102,12 +146,40 @@ public class RequestUseCase implements IRequestUseCase {
 
     }
 
+    @Override
+    public Mono<Request> updateStateRequestWithOutEmail(String id, String codeState) {
+        return requestRepository.findById(id)
+                .switchIfEmpty(Mono.error(new RequestResourceNotFoundException(ExceptionMessages.REQUEST_DOES_NOT_EXIST.getMessage())))
+                .flatMap(request ->
+                        stateRepository.findByState(codeState)
+                                .switchIfEmpty(Mono.error(new RequestResourceNotFoundException(ExceptionMessages.STATE_DOES_NOT_EXIST.getMessage())))
+                                .flatMap(stateNew -> {
+                                    request.setIdState(stateNew.getId());
+
+                                    return requestRepository.save(request);
+                                })
+                );
+
+    }
+
+    private Mono<Double> computeTotalMonthlyDebt(String email) {
+        return requestRepository.findRequestsByStateApprovedByUser(email, LoanStateCodes.APPROVED.getStatus())
+                .flatMap(request -> loanTypeRepository.findById(request.getIdLoanType())
+                        .map(loanType -> {
+                            request.setInterestRate(loanType.getInterestRate());
+                            return request;
+                        }))
+                .map(r -> calculateMonthlyPayment(r.getAmount(), r.getPeriod(), r.getInterestRate()))
+                .reduce(0.0, Double::sum);
+    }
+
 
     private double calculateMonthlyPayment(double amount, int period, double annualRate) {
-            double total = amount + (amount * (annualRate / 100.0));
-            double monthly = total / period;
-            return Math.round(monthly * 100.0) / 100.0;
+        double monthlyRate = (annualRate / 100.0) / 12;
+        double quota = (amount * monthlyRate) /
+                (1 - Math.pow(1 + monthlyRate, -period));
+        return Math.round(quota * 100.0) / 100.0;
+    }
 
-        }
 
 }

@@ -4,6 +4,8 @@ import co.com.crediya.model.exceptions.RequestResourceNotFoundException;
 import co.com.crediya.model.loantype.LoanType;
 import co.com.crediya.model.loantype.gateways.LoanTypeRepository;
 import co.com.crediya.model.notification.QueuePort;
+import co.com.crediya.model.notification.model.AutoValidationPayload;
+import co.com.crediya.model.notification.model.MessageNotification;
 import co.com.crediya.model.request.Request;
 import co.com.crediya.model.request.gateways.RequestRepository;
 import co.com.crediya.model.state.State;
@@ -81,20 +83,26 @@ class RequestUseCaseTest {
     @Test
     void saveRequest_WhenValid_ShouldSave() {
         Request request = createRequest();
-        User  user = createUser();
+        User user = createUser();
 
-        Mockito.when(userGateway.findByEmail(request.getEmail())).thenReturn(Mono.just(user));
-        Mockito.when(requestRepository.save(any(Request.class))).thenReturn(Mono.just(request));
+        Mockito.when(userGateway.findByEmail(request.getEmail()))
+                .thenReturn(Mono.just(user));
 
+        Mockito.when(loanTypeRepository.findById(request.getIdLoanType()))
+                .thenReturn(Mono.just(loanType)); // 🔑 aquí estaba el NPE
 
+        Mockito.when(requestRepository.save(any(Request.class)))
+                .thenReturn(Mono.just(request));
 
         StepVerifier.create(requestUseCase.saveRequest(request,"a@a.com"))
                 .expectNext(request)
                 .verifyComplete();
 
         verify(userGateway, times(1)).findByEmail(request.getEmail());
+        verify(loanTypeRepository, times(1)).findById(request.getIdLoanType());
         verify(requestRepository, times(1)).save(request);
     }
+
     @Test
     void saveRequest_WhenUserDoesNotExist_ShouldError() {
         Request request = createRequest();
@@ -163,6 +171,137 @@ class RequestUseCaseTest {
 
         verify(requestRepository).findRequestsByState(anyList(), eq(0), eq(10));
     }
+
+    @Test
+    void saveRequest_WhenLoanTypeWithAutomaticValidation_ShouldCallPublishAutoValidation() {
+        // Arrange
+        Request req = createRequest();
+        User user = createUser();
+
+
+        when(userGateway.findByEmail(anyString())).thenReturn(Mono.just(user));
+
+        loanType.setAutomaticValidation(true);
+        when(loanTypeRepository.findById(req.getIdLoanType())).thenReturn(Mono.just(loanType));
+
+        when(requestRepository.save(any(Request.class))).thenReturn(Mono.just(req));
+
+        when(requestRepository.findRequestsByStateApprovedByUser(anyString(), anyString()))
+                .thenReturn(Flux.empty());
+
+        when(queuePort.publishAutoValidation(any())).thenReturn(Mono.empty());
+
+        // Act
+        Mono<Request> result = requestUseCase.saveRequest(req, req.getEmail());
+
+        // Assert
+        StepVerifier.create(result)
+                .expectNext(req)
+                .verifyComplete();
+
+
+        verify(queuePort).publishAutoValidation(any(AutoValidationPayload.class));
+    }
+
+    @Test
+    void saveRequest_WhenLoanTypeWithoutAutomaticValidation_ShouldNotCallPublishAutoValidation() {
+        // Arrange
+        Request req = createRequest();
+        User user = createUser();
+
+        when(userGateway.findByEmail(anyString())).thenReturn(Mono.just(user));
+        loanType.setAutomaticValidation(false);
+        when(loanTypeRepository.findById(req.getIdLoanType())).thenReturn(Mono.just(loanType));
+        when(requestRepository.save(any(Request.class))).thenReturn(Mono.just(req));
+
+        // Act
+        Mono<Request> result = requestUseCase.saveRequest(req, req.getEmail());
+
+        // Assert
+        StepVerifier.create(result)
+                .expectNext(req)
+                .verifyComplete();
+
+        // No se llama a la cola
+        verify(queuePort, never()).publishAutoValidation(any());
+    }
+
+    @Test
+    void updateStateRequest_WhenRequestAndStateExist_ShouldUpdateAndPublishChangeStatus() {
+        // Arrange
+        when(requestRepository.findById("1")).thenReturn(Mono.just(request));
+        when(stateRepository.findByState("APPROVED")).thenReturn(Mono.just(state));
+        when(requestRepository.save(any(Request.class))).thenAnswer(invocation -> {
+            Request r = invocation.getArgument(0);
+            return Mono.just(r);
+        });
+        when(queuePort.publishChangeStatus(any(MessageNotification.class))).thenReturn(Mono.empty());
+
+        // Act
+        Mono<Request> result = requestUseCase.updateStateRequest("1", "APPROVED");
+
+        // Assert
+        StepVerifier.create(result)
+                .assertNext(r -> {
+                    assertEquals(state.getId(), r.getIdState());
+                    assertEquals(request.getId(), r.getId());
+                })
+                .verifyComplete();
+
+        verify(queuePort).publishChangeStatus(any(MessageNotification.class));
+    }
+
+    @Test
+    void updateStateRequest_WhenRequestDoesNotExist_ShouldReturnError() {
+        // Arrange
+        when(requestRepository.findById("1")).thenReturn(Mono.empty());
+
+        // Act & Assert
+        StepVerifier.create(requestUseCase.updateStateRequest("1", "APPROVED"))
+                .expectError(RequestResourceNotFoundException.class)
+                .verify();
+
+        verify(queuePort, never()).publishChangeStatus(any());
+    }
+
+
+    @Test
+    void updateStateRequestWithOutEmail_WhenRequestAndStateExist_ShouldUpdateWithoutPublishing() {
+        // Arrange
+        when(requestRepository.findById("1")).thenReturn(Mono.just(request));
+        when(stateRepository.findByState("APPROVED")).thenReturn(Mono.just(state));
+        when(requestRepository.save(any(Request.class))).thenAnswer(invocation -> {
+            Request r = invocation.getArgument(0);
+            return Mono.just(r);
+        });
+
+        // Act
+        Mono<Request> result = requestUseCase.updateStateRequestWithOutEmail("1", "APPROVED");
+
+        // Assert
+        StepVerifier.create(result)
+                .assertNext(r -> {
+                    assertEquals(state.getId(), r.getIdState());
+                    assertEquals(request.getId(), r.getId());
+                })
+                .verifyComplete();
+
+        // No se publica cambio de estado
+        verify(queuePort, never()).publishChangeStatus(any());
+    }
+
+    @Test
+    void updateStateRequestWithOutEmail_WhenStateDoesNotExist_ShouldReturnError() {
+        // Arrange
+        when(requestRepository.findById("1")).thenReturn(Mono.just(request));
+        when(stateRepository.findByState("APPROVED")).thenReturn(Mono.empty());
+
+        // Act & Assert
+        StepVerifier.create(requestUseCase.updateStateRequestWithOutEmail("1", "APPROVED"))
+                .expectError(RequestResourceNotFoundException.class)
+                .verify();
+    }
+
 
 
 

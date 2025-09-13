@@ -1,6 +1,7 @@
 package co.com.crediya.sqsnotification.producer;
 
 import co.com.crediya.model.notification.QueuePort;
+import co.com.crediya.model.notification.model.AutoValidationPayload;
 import co.com.crediya.model.notification.model.MessageNotification;
 import co.com.crediya.sqsnotification.mapper.SqsMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,6 +24,12 @@ public class NotificationProducer implements QueuePort {
     @Value("${aws.sqs.queueUrl}")
     private String queueUrl;
 
+    @Value("${aws.sqs.queueAutomaticUrl}")
+    private String autoValidationQueueUrl;
+
+    @Value("${aws.sqs.queueAutomaticUrlResult}")
+    private String autoValidationResultQueueUrl;
+
     @Override
     public Mono<Void> publishChangeStatus(MessageNotification messageNotification) {
         return Mono.fromCallable(() -> mapper.writeValueAsString(sqsMapper.messageToResponse(messageNotification)))
@@ -32,6 +39,31 @@ public class NotificationProducer implements QueuePort {
                                 .messageBody(json)
                                 .build())))
                 .doOnNext(response -> log.info("Message sent {}", response.messageId()))
+                .then();
+    }
+
+    @Override
+    public Mono<Void> publishAutoValidation(AutoValidationPayload payload) {
+        log.info("Se enviará payload a SQS: {}", payload);
+        return Mono.fromCallable(() -> mapper.writeValueAsString(payload))
+                .flatMap(json -> Mono.fromFuture(
+                        sqs.sendMessage(SendMessageRequest.builder()
+                                .queueUrl(autoValidationQueueUrl)
+                                .messageBody(json)
+                                .build())))
+                .doOnNext(resp -> log.info("AutoValidation gluing messageId={}", resp.messageId()))
+                .then();
+    }
+
+    @Override
+    public Mono<Void> publishValidationResult(AutoValidationPayload payload) {
+        return Mono.fromCallable(() -> mapper.writeValueAsString(payload))
+                .flatMap(json -> Mono.fromFuture(
+                        sqs.sendMessage(SendMessageRequest.builder()
+                                .queueUrl(autoValidationResultQueueUrl)
+                                .messageBody(json)
+                                .build())))
+                .doOnNext(resp -> log.info("AutoValidationResult messageId={}", resp.messageId()))
                 .then();
     }
 }
