@@ -5,6 +5,7 @@ import co.com.crediya.model.loantype.LoanType;
 import co.com.crediya.model.loantype.gateways.LoanTypeRepository;
 import co.com.crediya.model.notification.QueuePort;
 import co.com.crediya.model.notification.model.AutoValidationPayload;
+import co.com.crediya.model.notification.model.EventReport;
 import co.com.crediya.model.notification.model.MessageNotification;
 import co.com.crediya.model.request.Request;
 import co.com.crediya.model.request.gateways.RequestRepository;
@@ -12,9 +13,12 @@ import co.com.crediya.model.state.State;
 import co.com.crediya.model.state.gateways.StateRepository;
 import co.com.crediya.model.user.User;
 import co.com.crediya.model.user.UserGateway;
+import jdk.jfr.Event;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -26,6 +30,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class RequestUseCaseTest {
 
     private RequestRepository requestRepository;
@@ -236,7 +241,7 @@ class RequestUseCaseTest {
             return Mono.just(r);
         });
         when(queuePort.publishChangeStatus(any(MessageNotification.class))).thenReturn(Mono.empty());
-
+        when(queuePort.publishStatusApprovedReport(any(EventReport.class))).thenReturn(Mono.empty());
         // Act
         Mono<Request> result = requestUseCase.updateStateRequest("1", "APPROVED");
 
@@ -249,12 +254,15 @@ class RequestUseCaseTest {
                 .verifyComplete();
 
         verify(queuePort).publishChangeStatus(any(MessageNotification.class));
+        verify(queuePort).publishStatusApprovedReport(any(EventReport.class));
     }
 
     @Test
     void updateStateRequest_WhenRequestDoesNotExist_ShouldReturnError() {
         // Arrange
         when(requestRepository.findById("1")).thenReturn(Mono.empty());
+        when(stateRepository.findByState(anyString())).thenReturn(Mono.empty());
+
 
         // Act & Assert
         StepVerifier.create(requestUseCase.updateStateRequest("1", "APPROVED"))

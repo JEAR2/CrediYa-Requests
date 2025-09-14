@@ -2,6 +2,7 @@ package co.com.crediya.sqsnotification.producer;
 
 import co.com.crediya.model.notification.QueuePort;
 import co.com.crediya.model.notification.model.AutoValidationPayload;
+import co.com.crediya.model.notification.model.EventReport;
 import co.com.crediya.model.notification.model.MessageNotification;
 import co.com.crediya.sqsnotification.mapper.SqsMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,7 +20,8 @@ import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 @RequiredArgsConstructor
 public class NotificationProducer implements QueuePort {
     private final SqsAsyncClient sqs;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper().registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
+    ;
     private final SqsMapper sqsMapper;
     @Value("${aws.sqs.queueUrl}")
     private String queueUrl;
@@ -29,6 +31,9 @@ public class NotificationProducer implements QueuePort {
 
     @Value("${aws.sqs.queueAutomaticUrlResult}")
     private String autoValidationResultQueueUrl;
+
+    @Value("${aws.sqs.queueRequestApprovedReport}")
+    private String requestsApprovedReportQueueUrl;
 
     @Override
     public Mono<Void> publishChangeStatus(MessageNotification messageNotification) {
@@ -64,6 +69,19 @@ public class NotificationProducer implements QueuePort {
                                 .messageBody(json)
                                 .build())))
                 .doOnNext(resp -> log.info("AutoValidationResult messageId={}", resp.messageId()))
+                .then();
+    }
+
+    @Override
+    public Mono<Void> publishStatusApprovedReport(EventReport eventReport) {
+        log.info("Se enviará payload a SQS: {}", eventReport);
+        return Mono.fromCallable(() -> mapper.writeValueAsString(eventReport))
+                .flatMap(json -> Mono.fromFuture(
+                        sqs.sendMessage(SendMessageRequest.builder()
+                                .queueUrl(requestsApprovedReportQueueUrl)
+                                .messageBody(json)
+                                .build())))
+                .doOnNext(resp -> log.info("StatusApprovedReport gluing messageId={}", resp.messageId()))
                 .then();
     }
 }

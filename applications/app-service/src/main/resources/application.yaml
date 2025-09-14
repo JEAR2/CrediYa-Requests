@@ -72,6 +72,7 @@ aws:
     queueUrl: "${AWS_URL_SQS}"
     queueAutomaticUrl: "${AWS_URL_SQS_AUTOMATIC}"
     queueAutomaticUrlResult: "${AWS_URL_SQS_AUTOMATIC_RESULT}"
+    queueRequestApprovedReport: "${AWS_URL_SQS_REQUEST_APPROVED_REPORT}"
 entrypoint:
   sqs:
     region: "us-east-2"

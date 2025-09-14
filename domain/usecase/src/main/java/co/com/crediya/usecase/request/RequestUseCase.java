@@ -8,6 +8,7 @@ import co.com.crediya.model.loantype.LoanType;
 import co.com.crediya.model.loantype.gateways.LoanTypeRepository;
 import co.com.crediya.model.notification.QueuePort;
 import co.com.crediya.model.notification.model.AutoValidationPayload;
+import co.com.crediya.model.notification.model.EventReport;
 import co.com.crediya.model.notification.model.MessageNotification;
 import co.com.crediya.model.request.Request;
 import co.com.crediya.model.request.gateways.RequestRepository;
@@ -19,6 +20,9 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -127,24 +131,54 @@ public class RequestUseCase implements IRequestUseCase {
                         }));
     }
 
-    @Override
-    public Mono<Request> updateStateRequest(String id, String state) {
+@Override
+public Mono<Request> updateStateRequest(String id, String state) {
 
-        return requestRepository.findById(id)
-                .switchIfEmpty(Mono.error(new RequestResourceNotFoundException(ExceptionMessages.REQUEST_DOES_NOT_EXIST.getMessage())))
-                .flatMap(request ->
-                        stateRepository.findByState(state)
-                                .switchIfEmpty(Mono.error(new RequestResourceNotFoundException(ExceptionMessages.STATE_DOES_NOT_EXIST.getMessage())))
-                                .flatMap(stateNew -> {
-                                    request.setIdState(stateNew.getId());
-                                    return requestRepository.save(request)
-                                            .flatMap(saveRequest-> queuePort.publishChangeStatus(MessageNotification.builder()
-                                                    .idRequest(saveRequest.getId()).state(state).email(saveRequest.getEmail()).build())
-                                            .thenReturn(saveRequest));
-                                })
+    Mono<Request> requestMono = requestRepository.findById(id)
+            .switchIfEmpty(Mono.error(
+                    new RequestResourceNotFoundException(ExceptionMessages.REQUEST_DOES_NOT_EXIST.getMessage())
+            ));
+
+    Mono<State> stateMono = stateRepository.findByState(state)
+            .switchIfEmpty(Mono.error(
+                    new RequestResourceNotFoundException(ExceptionMessages.STATE_DOES_NOT_EXIST.getMessage())
+            ));
+
+    return requestMono.zipWith(stateMono)
+            .flatMap(tuple -> {
+                Request request = tuple.getT1();
+                State stateNew = tuple.getT2();
+
+                request.setIdState(stateNew.getId());
+
+                return requestRepository.save(request);
+            })
+            .flatMap(savedRequest -> {
+                Mono<Void> notifyAllStates = queuePort.publishChangeStatus(
+                        MessageNotification.builder()
+                                .idRequest(savedRequest.getId())
+                                .state(state)
+                                .email(savedRequest.getEmail())
+                                .build()
                 );
 
-    }
+                Mono<Void> notifyApproved = Mono.empty();
+                if (LoanStateCodes.APPROVED.getStatus().equalsIgnoreCase(state)) {
+                    notifyApproved = queuePort.publishStatusApprovedReport(
+                            EventReport.builder()
+                                    .requestId(String.valueOf(savedRequest.getId()))
+                                    .state(state)
+                                    .amount(BigDecimal.valueOf(savedRequest.getAmount()))
+                                    .createAt(LocalDateTime.now().toString())
+                                    .build()
+                    );
+                }
+
+                return Mono.when(notifyAllStates, notifyApproved)
+                        .thenReturn(savedRequest);
+            });
+}
+
 
     @Override
     public Mono<Request> updateStateRequestWithOutEmail(String id, String codeState) {

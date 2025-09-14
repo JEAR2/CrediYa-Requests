@@ -47,7 +47,7 @@ public class GlobalHandlerException implements ErrorWebExceptionHandler {
     public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
         return Mono.error(ex)
                 .onErrorResume(RequestException.class, authEx -> {
-                    log.warn("Authentication Exception: {}", authEx.getMessage());
+                    log.warn("Request Exception: {}", authEx.getMessage());
                     return buildFailureResponse(
                             exchange,
                             HttpStatus.resolve(authEx.getStatus()),
