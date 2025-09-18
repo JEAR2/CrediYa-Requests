@@ -169,7 +169,7 @@ public Mono<Request> updateStateRequest(String id, String state) {
                                     .requestId(String.valueOf(savedRequest.getId()))
                                     .state(state)
                                     .amount(BigDecimal.valueOf(savedRequest.getAmount()))
-                                    .createAt(LocalDateTime.now().toString())
+                                    .createdAt(LocalDateTime.now().toString())
                                     .build()
                     );
                 }

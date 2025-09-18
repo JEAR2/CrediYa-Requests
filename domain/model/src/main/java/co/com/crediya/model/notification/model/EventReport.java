@@ -15,5 +15,5 @@ public class EventReport {
     private String requestId;
     private BigDecimal amount;
     private String state;
-    private String createAt;
+    private String createdAt;
 }

@@ -35,8 +35,16 @@ public class SecurityConfigRequests {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(ex -> ex
-                        .pathMatchers(HttpMethod.POST, "/api/v1/requests").hasRole("CLIENT")
-                        .pathMatchers(HttpMethod.POST, "/api/v1/requests/list").hasRole("ADVISER")
+                        .pathMatchers(
+                                "/request/swagger-ui.html",
+                                "/request/swagger-ui/**",
+                                "/request/v3/api-docs/**",
+                                "/request/webjars/**",
+                                "/request/openapi/**"
+                        ).permitAll()
+                        .pathMatchers(HttpMethod.GET, "/request/actuator/health").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/request/api/v1/requests").hasRole("CLIENT")
+                        .pathMatchers(HttpMethod.POST, "/request/api/v1/requests/list").hasRole("ADVISER")
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 ->

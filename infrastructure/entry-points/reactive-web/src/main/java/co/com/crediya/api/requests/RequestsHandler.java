@@ -12,6 +12,8 @@ import co.com.crediya.model.ports.TransactionManagement;
 import co.com.crediya.usecase.loantype.LoanTypeUseCasePort;
 import co.com.crediya.usecase.request.RequestUseCase;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -42,8 +44,11 @@ public class RequestsHandler {
             responses = { @ApiResponse( responseCode = "201", description = "Request saved successfully.", content = @Content( schema = @Schema( implementation = ResponseRequestDTO.class ) ) ),
                     @ApiResponse( responseCode = "400", description = "Request body is not valid.", content = @Content( schema = @Schema( implementation = ResponseDTO.class ) ) ),
                     @ApiResponse( responseCode = "404", description = "User email sent is not found.", content = @Content( schema = @Schema( implementation = ResponseDTO.class ) ) )
-            }
-    )
+            },
+            parameters = {
+        @Parameter( in = ParameterIn.HEADER, name = "Authorization", description = "Bearer token", required = true, example = "mkasjdlkjas782347812" )
+    })
+
     public Mono<ServerResponse> listenSaveRequest(ServerRequest serverRequest) {
 
         return serverRequest.principal()

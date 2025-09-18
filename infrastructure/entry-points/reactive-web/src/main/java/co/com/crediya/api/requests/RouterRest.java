@@ -24,12 +24,12 @@ public class RouterRest {
     private final PathsConfig pathsConfig;
     @Bean
     @RouterOperations({
-            @RouterOperation(path = "/api/v1/requests", produces = {MediaType.APPLICATION_JSON_VALUE,}, method = RequestMethod.POST, beanClass = RequestsHandler.class, beanMethod = "listenSaveRequest")
+            @RouterOperation(path = "/request/api/v1/requests", produces = {MediaType.APPLICATION_JSON_VALUE,}, method = RequestMethod.POST, beanClass = RequestsHandler.class, beanMethod = "listenSaveRequest")
     })
     public RouterFunction<ServerResponse> routerFunction(RequestsHandler requestsHandler) {
         return route(POST(pathsConfig.getRequests()), this.requestRequestsHandler::listenSaveRequest)
-                .andRoute(GET("/api/v1/requests/list"), this.listRequestHandler::listByStates)
-                .andRoute(PUT("/api/v1/request/{id}"),this.requestRequestsHandler::listenUpdateStateRequest);
+                .andRoute(GET("/request/api/v1/requests/list"), this.listRequestHandler::listByStates)
+                .andRoute(PUT("/request/api/v1/request/{id}"),this.requestRequestsHandler::listenUpdateStateRequest);
     }
 
 
