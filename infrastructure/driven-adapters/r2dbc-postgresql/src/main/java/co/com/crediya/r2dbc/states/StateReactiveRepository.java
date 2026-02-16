@@ -11,4 +11,6 @@ import java.util.List;
 
 public interface StateReactiveRepository extends ReactiveCrudRepository<StateEntity, Long> , ReactiveQueryByExampleExecutor<StateEntity> {
     Flux<StateEntity> findByCodeIn(List<String> codes);
+
+    Mono<StateEntity> findByCode(String state);
 }

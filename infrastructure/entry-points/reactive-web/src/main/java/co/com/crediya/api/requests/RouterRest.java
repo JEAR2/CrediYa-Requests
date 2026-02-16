@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
-import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
+import static io.netty.handler.codec.http.HttpMethod.PUT;
+import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
@@ -28,7 +28,8 @@ public class RouterRest {
     })
     public RouterFunction<ServerResponse> routerFunction(RequestsHandler requestsHandler) {
         return route(POST(pathsConfig.getRequests()), this.requestRequestsHandler::listenSaveRequest)
-                .andRoute(GET("/api/v1/requests/list"), this.listRequestHandler::listByStates);
+                .andRoute(GET("/api/v1/requests/list"), this.listRequestHandler::listByStates)
+                .andRoute(PUT("/api/v1/request/{id}"),this.requestRequestsHandler::listenUpdateStateRequest);
     }
 
 

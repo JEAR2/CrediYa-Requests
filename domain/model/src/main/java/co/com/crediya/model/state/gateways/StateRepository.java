@@ -10,4 +10,5 @@ public interface StateRepository {
 
     Mono<State> findById(Long id);
     Flux<State> findByCodeIn(List<String> codes);
+    Mono<State> findByState(String codeState);
 }
